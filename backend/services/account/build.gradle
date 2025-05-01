@@ -1,0 +1,8 @@
+apply from: '../../dependencies.gradle'
+
+dependencies {
+    implementation project(":shared")
+    implementation 'com.auth0:auth0:2.6.1'
+
+    testImplementation(testFixtures(project(":shared")))
+}

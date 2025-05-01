@@ -1,1 +1,22 @@
-rootProject.name = 'backend'
+// The main purpose of the the 0x notation is to make sure that the elements are sorted in a logical
+// order.
+
+include("shared")
+include("gateway")
+
+// add all the maven project inside the services directory as maven modules
+def servicesDirName = "services"
+
+def servicesDirectory = rootDir.listFiles().findAll { (it.name == servicesDirName) }.first()
+
+if (servicesDirectory.exists() && servicesDirectory.isDirectory()) {
+
+    def subdirectories = servicesDirectory.listFiles().findAll {
+        it.isDirectory() && !it.isHidden()
+    }
+
+    subdirectories.forEach {
+        service -> include("${servicesDirName}:${service.name}")
+    }
+
+}

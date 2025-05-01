@@ -1,0 +1,96 @@
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.1'
+}
+
+apply from: '../dependencies.gradle'
+
+dependencies {
+
+    implementation project(":shared")
+    implementation project(':services:account')
+
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation "com.github.kagkarlsson:db-scheduler-spring-boot-starter:${ver.dbScheduler}"
+    implementation "no.bekk.db-scheduler-ui:db-scheduler-ui-starter:${ver.dbSchedulerUI}"
+    implementation "io.rocketbase.extension:db-scheduler-log-spring-boot-starter:${ver.dbSchedulerUIHistory}"
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+
+    // Helper
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    // Monitoring
+    implementation "io.micrometer:micrometer-registry-prometheus"
+    // using new @Observed on class and enaabled @ObservedAspect
+    implementation "org.springframework.boot:spring-boot-starter-aop"
+    // enabled endpoint and expose metrics
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    // handleing lifecycle of a span
+    implementation "io.micrometer:micrometer-tracing-bridge-brave"
+
+    // send span and trace data
+    // endpoint is default to "http://locahost:9411/api/v2/spans" by actuator
+    // we could setting by management.zipkin.tracing.endpoint
+    implementation "io.zipkin.reporter2:zipkin-reporter-brave"
+    // send logs by log Appender through URL
+    implementation "com.github.loki4j:loki-logback-appender:1.4.0-rc2"
+
+    testImplementation(testFixtures(project(":shared")))
+
+}
+
+configurations {
+    all {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
+}
+
+bootJar {
+    layered {
+        enabled = true
+    }
+}
+//Check the following link for more information: https://spring.io/guides/topicals/spring-boot-docker/
+task extractSpringBootLayerIndex(type: Exec) {
+    dependsOn bootJar
+    commandLine 'java', '-Djarmode=layertools', '-jar', bootJar.archivePath, 'extract', '--destination', 'build/extracted'
+}
+
+task zipBuildExtracted(type: Zip) {
+    dependsOn extractSpringBootLayerIndex
+    from 'build/extracted'
+    archiveFileName = 'layers.zip'
+    destinationDirectory = file('build')
+}
+
+def openApiSpec = layout.projectDirectory.file("src/main/resources/openapi/cozy-api-gateway-spec.yaml").getAsFile().toString()
+
+tasks.register("generateApi", GenerateTask) {
+    generatorName.set("spring")
+    inputSpec.set(openApiSpec)
+    library.set("spring-boot")
+    outputDir.set("$buildDir/generated/openapi")
+    apiPackage.set("com.cozy.api")
+    invokerPackage.set("com.cozy.api")
+    modelPackage.set("com.cozy.model")
+    modelNameSuffix.set("Dto")
+    generateApiDocumentation.set(false)
+    generateModelTests.set(false)
+    configOptions.set([
+            skipDefaultInterface   : "true",
+            ignoreFileOverride     : "true",
+            sourceFolder           : "/",
+            serializableModel      : "true",
+            implFolder             : "/",
+            interfaceOnly          : "true",
+            returnResponse         : "true",
+            generateApis           : "true",
+            generateModels         : "true",
+            generateSupportingFiles: "false",
+            useSpringBoot3         : "true"
+    ])
+}

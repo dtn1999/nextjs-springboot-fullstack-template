@@ -1,0 +1,5 @@
+CREATE SCHEMA IF NOT EXISTS account_service;
+CREATE SCHEMA IF NOT EXISTS listing_service;
+CREATE SCHEMA IF NOT EXISTS booking_service;
+CREATE SCHEMA IF NOT EXISTS billing_service;
+CREATE SCHEMA IF NOT EXISTS feedback_service;

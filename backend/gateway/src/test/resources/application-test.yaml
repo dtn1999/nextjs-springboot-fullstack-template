@@ -1,0 +1,81 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: "http://dummy-issuer-uri"
+          jwk-set-uri: "http://dummy-jwk-set-uri/.well-known/jwks.json"
+          audiences:
+            - "dummy-audience"
+
+  datasource:
+    url: jdbc:tc:postgis:16-3.4-alpine:///test_db?TC_INITSCRIPT=sql/init.sql
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+
+  main:
+    allow-bean-definition-overriding: true
+
+messaging:
+  resource-management-exchange: cozy.resource.management
+  booking-processing-exchange: cozy.booking.processing
+  booking-created-event-queue: cozy.booking.processing.bookingcreated.event
+  booking-state-event-queue: cozy.booking.processing.bookingstate.event
+  payment-succeeded-event-queue: cozy.booking.processing.paymentsucceeded.event
+  payment-failed-event-queue: cozy.booking.processing.paymentfailed.event
+
+services:
+  account:
+    enabled: true
+    name: account
+    liquibase:
+      change-log: classpath:db/account/db.changelog-master.xml
+      default-schema: account_service
+      liquibase-schema: account_service
+
+    domain:
+      globalSettings:
+        language: "en"
+        timezone: "Berlin/Europe"
+        currency: "EUR"
+
+  listing:
+    name: listing
+    enabled: true
+    liquibase:
+      change-log: classpath:db/listing/db.changelog-master.xml
+      default-schema: listing_service
+      liquibase-schema: listing_service
+
+    domain:
+      availability:
+        defaultNumberOfCalendar: 4
+
+  billing:
+    name: billing
+    enabled: true
+    liquibase:
+      change-log: classpath:db/billing/db.changelog-master.xml
+      default-schema: billing_service
+      liquibase-schema: billing_service
+    messaging:
+      payment-failed-exchange-key: "BOOKING_PAYMENT_FAILED"
+      payment-succeeded-exchange-key: "BOOKING_PAYMENT_SUCCEEDED"
+      booking-created-exchange-key: "BOOKING_CREATED"
+
+    stripe:
+      api-key: "stripe-api-key"
+      currency: "EUR"
+      success-callback-url: http://localhost:3000/settings/billing
+
+  booking:
+    name: booking
+    enabled: true
+    liquibase:
+      change-log: classpath:db/booking/db.changelog-master.xml
+      default-schema: booking_service
+      liquibase-schema: booking_service
+    domain:
+      messaging:
+        booking-state-event-queue: cozy.booking.processing.bookingstate.event
+        payment-state-event-queue: cozy.booking.processing.paymentstate.event
+      currency: EUR

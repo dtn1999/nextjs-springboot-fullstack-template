@@ -1,0 +1,4332 @@
+openapi: 3.0.2
+info:
+  title: Cozi Stay Backend Service API
+  version: 1.0.0
+servers:
+  - url: /gateway-service
+
+tags:
+  - name: CoziApi
+    x-displayName: CoziApi
+paths:
+  #################################################
+  #               Account                         #
+  #################################################
+  /accounts/{accountId}/verify/government-id:
+    patch:
+      tags:
+        - CoziApi
+      summary: Verify account's government ID.
+      operationId: verifyIdentityByAccountId
+      parameters:
+        - in: path
+          name: accountId
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - in: query
+          name: status
+          required: true
+          schema:
+            $ref: '#/components/schemas/GovernmentIdStatusEnum'
+        - in: query
+          name: rejectionReason
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IdentityVerificationResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /accounts/check-email-uniqueness:
+    post:
+      tags:
+        - CoziApi
+      summary: Check if an email is unique.
+      operationId: checkEmailUniqueness
+      parameters:
+        - in: query
+          name: email
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: >-
+            Boolean response indicating if the email is unique or not. True if
+            unique, false otherwise.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailUniquenessResponse'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /accounts/register:
+    post:
+      tags:
+        - CoziApi
+      summary: Register a new account.
+      operationId: register
+      requestBody:
+        description: The fields of the account that need to be updated.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUserRequest'
+      responses:
+        '201':
+          description: >-
+            Create and setup a new account for the authenticated user making the
+            request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /accounts/whoami:
+    get:
+      tags:
+        - CoziApi
+      summary: Get the current user account.
+      operationId: whoami
+      responses:
+        '200':
+          description: Get the current user account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '401':
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /accounts/{accountId}:
+    get:
+      tags:
+        - CoziApi
+      summary: Get an account by its internal ID (not the oauth0 user ID)
+      operationId: findAccountById
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Account associated with the given ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '401':
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    patch:
+      tags:
+        - CoziApi
+      summary: Update an account by its internal ID (not the oauth0 user ID)
+      operationId: updateAccount
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: The fields of the account that need to be updated.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountPatchRequest'
+      responses:
+        '200':
+          description: The updated account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /accounts/{accountId}/become-host:
+    put:
+      tags:
+        - CoziApi
+      summary: Change the role of an account to host.
+      operationId: makeUserHost
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: No content
+          content: { }
+        '401':
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /accounts/{accountId}/suspend:
+    put:
+      tags:
+        - CoziApi
+      summary: Change ban the account with the given ID.
+      operationId: suspendAccount
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: No content
+          content: { }
+        '401':
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /accounts/{accountId}/delete:
+    delete:
+      tags:
+        - CoziApi
+      summary: Delete the account with the given ID.
+      operationId: deleteAccount
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: No content
+          content: { }
+        '401':
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /accounts/{accountId}/revoke:
+    put:
+      tags:
+        - CoziApi
+      summary: Revoke an account.
+      operationId: revokeAccount
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: The updated account
+          content: { }
+        '401':
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /accounts:
+    get:
+      tags:
+        - CoziApi
+      summary: Get all registered accounts.
+      operationId: getAllAccounts
+      responses:
+        '200':
+          description: The updated account
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+        '401':
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /profiles:
+    get:
+      tags:
+        - CoziApi
+      summary: Get all Profiles
+      operationId: getAllProfiles
+      responses:
+        '200':
+          description: List of available profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Profile'
+        '401':
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /profiles/{profileId}:
+    get:
+      tags:
+        - CoziApi
+      summary: Find profile by Id
+      operationId: findProfileById
+      parameters:
+        - in: path
+          name: profileId
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Profile with the Id given in reques path
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '401':
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: No Profile with the ID passed in request path was found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  #################################################
+  #               Listings                        #
+  #################################################
+  /listings/locations:
+    post:
+      tags:
+        - CoziApi
+      summary: Create a new location.
+      operationId: createLocation
+      requestBody:
+        description: Location
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLocationRequest'
+      responses:
+        '201':
+          description: Created Location with Id, and timestamp information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '400':
+          description: Request body is invalid
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Not allowed to create location
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    get:
+      tags:
+        - CoziApi
+      summary: Get all addresses.
+      operationId: findAllRegisteredLocations
+      responses:
+        '200':
+          description: List of registered locations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /listings/locations/{locationId}:
+    get:
+      tags:
+        - CoziApi
+      summary: Get all addresses.
+      operationId: findLocationById
+      parameters:
+        - in: path
+          name: locationId
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Location with given Id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '404':
+          description: Location with given Id not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    put:
+      tags:
+        - CoziApi
+      summary: Get all addresses.
+      operationId: updateLocationById
+      parameters:
+        - in: path
+          name: locationId
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLocationRequest'
+      responses:
+        '200':
+          description: Update Location with given Id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+        '404':
+          description: Location with given Id not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    delete:
+      tags:
+        - CoziApi
+      summary: Get all addresses.
+      operationId: deleteLocationById
+      parameters:
+        - in: path
+          name: locationId
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: No content
+          content: { }
+        '404':
+          description: Location with given Id not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /listings/listing-types:
+    post:
+      tags:
+        - CoziApi
+      summary: Create a new listing type.
+      operationId: createListingType
+      requestBody:
+        description: ListingType
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListingType'
+      responses:
+        '201':
+          description: Created ListingType with Id, and timestamp information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingType'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Not allowed to create listing type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    get:
+      tags:
+        - CoziApi
+      summary: Get all listing types.
+      operationId: findAllListingTypes
+      responses:
+        '200':
+          description: List of listing types
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ListingType'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /listings/listing-types/{listingTypeId}:
+    get:
+      tags:
+        - CoziApi
+      summary: Get listing type by id.
+      operationId: findListingTypeById
+      parameters:
+        - name: listingTypeId
+          in: path
+          description: ListingType Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: ListingType with Id, and timestamp information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingType'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Listing type not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    put:
+      tags:
+        - CoziApi
+      summary: Update listing type by id.
+      operationId: updateListingTypeById
+      parameters:
+        - name: listingTypeId
+          in: path
+          description: ListingType Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: ListingType
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListingType'
+      responses:
+        '200':
+          description: Updated ListingType with Id, and timestamp information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingType'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Not allowed to update listing type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Listing type not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    delete:
+      tags:
+        - CoziApi
+      summary: Delete listing type by id.
+      operationId: deleteListingTypeById
+      parameters:
+        - name: listingTypeId
+          in: path
+          description: ListingType Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Deleted ListingType with Id, and timestamp information
+          content: { }
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Not allowed to delete listing type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Listing type not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /listings/amenities:
+    post:
+      tags:
+        - CoziApi
+      summary: Create a new amenity.
+      operationId: createAmenity
+      requestBody:
+        description: Amenity
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Amenity'
+      responses:
+        '201':
+          description: Created Amenity with Id, and timestamp information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Amenity'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Not allowed to create amenity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    get:
+      tags:
+        - CoziApi
+      summary: Get all amenities.
+      operationId: findAllAmenities
+      responses:
+        '200':
+          description: List of amenities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Amenity'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /listings/amenities/{amenityId}:
+    get:
+      tags:
+        - CoziApi
+      summary: Get amenity by id.
+      operationId: findAmenityById
+      parameters:
+        - name: amenityId
+          in: path
+          description: Amenity Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Amenity with Id, and timestamp information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Amenity'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Amenity not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    put:
+      tags:
+        - CoziApi
+      summary: Update amenity by id.
+      operationId: updateAmenityById
+      parameters:
+        - name: amenityId
+          in: path
+          description: Amenity Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Amenity
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Amenity'
+      responses:
+        '200':
+          description: Updated Amenity with Id, and timestamp information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Amenity'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Not allowed to update amenity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Amenity not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    delete:
+      tags:
+        - CoziApi
+      summary: Delete amenity by id.
+      operationId: deleteAmenityById
+      parameters:
+        - name: amenityId
+          in: path
+          description: Amenity Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Deleted Amenity with Id, and timestamp information
+          content: { }
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Not allowed to delete amenity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Amenity not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /listings/owners/{ownerId}:
+    get:
+      tags:
+        - CoziApi
+      summary: Get all listings for account.
+      operationId: findAllListingsByOwnerId
+      parameters:
+        - name: ownerId
+          in: path
+          description: Account Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: List of listings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Listing'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Not allowed to get listings for account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    post:
+      tags:
+        - CoziApi
+      summary: Create a new listing.
+      operationId: setupListingForAccountId
+      parameters:
+        - name: ownerId
+          in: path
+          description: Account Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '201':
+          description: Created Listing with Id, and timestamp information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /listings/{listingId}:
+    get:
+      tags:
+        - CoziApi
+      summary: Get listing by id.
+      operationId: findListingById
+      parameters:
+        - name: listingId
+          in: path
+          description: Listing Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Listing with Id, and timestamp information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Listing not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    patch:
+      tags:
+        - CoziApi
+      summary: Update a listing.
+      operationId: updateListingById
+      parameters:
+        - name: listingId
+          in: path
+          description: Listing Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: ListingPatchRequest
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListingPatchRequest'
+      responses:
+        '200':
+          description: Updated Listing with Id, and timestamp information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    delete:
+      tags:
+        - CoziApi
+      summary: Delete a listing.
+      operationId: deleteListingById
+      parameters:
+        - name: listingId
+          in: path
+          description: Listing Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Deleted Listing with Id, and timestamp information
+          content: { }
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Listing not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /listings/{listingId}/publish:
+    put:
+      tags:
+        - CoziApi
+      summary: Publish a listing.
+      operationId: publishListingById
+      parameters:
+        - name: listingId
+          in: path
+          description: Listing Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Published Listing with Id, and timestamp information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Not allowed to publish listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Listing not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /listings/{listingId}/verify:
+    get:
+      tags:
+        - CoziApi
+      summary: Verify if a listing is publishable.
+      operationId: istListingPublishable
+      parameters:
+        - name: listingId
+          in: path
+          description: Listing Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Boolean response
+          content:
+            application/json:
+              schema:
+                type: boolean
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Not allowed to publish listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Listing not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /listings/{listingId}/unlist:
+    put:
+      tags:
+        - CoziApi
+      summary: Unpublished a listing.
+      operationId: unpublishListingById
+      parameters:
+        - name: listingId
+          in: path
+          description: Listing Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Information about how long the listing will remain unlisted
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnlistListingRequest'
+      responses:
+        '200':
+          description: the unpublished listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Not allowed to unpublished listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /listings/book/{listingId}:
+    post:
+      tags:
+        - CoziApi
+      summary: Book a listing for a period of time.
+      operationId: bookListingById
+      parameters:
+        - name: listingId
+          in: path
+          description: Listing Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Period of time to book
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookListingRequest'
+      responses:
+        '200':
+          description: Booking response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingBookingResponse'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /listings/{listingId}/price:
+    post:
+      tags:
+        - CoziApi
+      summary: Book a listing for a period of time.
+      operationId: computeListingBookingPrice
+      parameters:
+        - name: listingId
+          in: path
+          description: Listing Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Period of time to book
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookListingRequest'
+      responses:
+        '200':
+          description: Booking Price
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListingBookingPrice'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /listings/{listingId}/unbook/{bookedAvailabilityId}:
+    put:
+      tags:
+        - CoziApi
+      summary: Book a listing for a period of time.
+      operationId: unbookListingById
+      parameters:
+        - name: listingId
+          in: path
+          description: Listing Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: bookedAvailabilityId
+          in: path
+          description: Booked Availability Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: the booked slot
+          content: { }
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /listings:
+    get:
+      tags:
+        - CoziApi
+      summary: Get all listings.
+      operationId: findAllListings
+      parameters:
+        - in: query
+          name: query
+          style: form
+          explode: true
+          required: false
+          schema:
+            $ref: '#/components/schemas/SearchListingQuery'
+      responses:
+        '200':
+          description: List of listings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Listing'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /listings/{listingId}/availabilities:
+    get:
+      tags:
+        - CoziApi
+      summary: Get the listing of availabilities entry for a given listing and in a given period.
+      operationId: findAvailabilitiesByListingId
+      parameters:
+        - name: listingId
+          in: path
+          description: Listing Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: start
+          in: query
+          description: Start date of a given period
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: end
+          in: query
+          description: End date of a given period
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: The List of availabilities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Availability'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    patch:
+      tags:
+        - CoziApi
+      summary: Add availability to a calendar.
+      operationId: addAvailabilitiesToCalendar
+      parameters:
+        - name: listingId
+          in: path
+          description: Listing Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: calendarId
+          in: path
+          description: Calendar Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: List of availabilities
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAvailabilityRequest'
+      responses:
+        '200':
+          description: the Calendar with the added availabilities
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Calendar'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Not allowed to unpublished listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /listings/{listingId}/availabilities/{availabilityId}:
+    delete:
+      tags:
+        - CoziApi
+      summary: delete an availability from Calendar.
+      operationId: removeAvailabilityFromCalendar
+      parameters:
+        - name: listingId
+          in: path
+          description: Listing Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: calendarId
+          in: path
+          description: Calendar Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: availabilityId
+          in: path
+          description: Availability Id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: the Calendar without the removed availability
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Calendar'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: Not allowed to unpublished listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /search/listings:
+    post:
+      tags:
+        - CoziApi
+      summary: Search for listings.
+      operationId: searchListings
+      requestBody:
+        description: Search criteria
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchListingQuery'
+      responses:
+        '200':
+          description: List of listings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Listing'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  #################################################
+  #               Billing Accounts                #
+  #################################################
+  /billings/accounts/setup:
+    post:
+      tags:
+        - CoziApi
+      summary: Create a new Billing Account
+      operationId: setupBillingAccount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBillingAccountRequest'
+      responses:
+        '201':
+          description: Payment method created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StartFuturePaymentSessionResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /billings/accounts/setup/{accountId}:
+    get:
+      tags:
+        - CoziApi
+      summary: Get client secret to setup billing account
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: callbackUrl
+          in: query
+          required: false
+          schema:
+            type: string
+      operationId: getStripeClientSecret
+      responses:
+        '200':
+          description: Payment method created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StartFuturePaymentSessionResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /billings/accounts:
+    put:
+      tags:
+        - CoziApi
+      summary: Complete account setup
+      parameters:
+        - name: state
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: sessionId
+          in: query
+          required: true
+          schema:
+            type: string
+      operationId: completeAccountSetup
+      responses:
+        '200':
+          description: Payment method created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentAccount'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    get:
+      tags:
+        - CoziApi
+      summary: Get all payment wallets
+      operationId: findAllBillingAccounts
+      responses:
+        '200':
+          description: Payment method
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaymentAccount'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: User is not authorized to access this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Payment method not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /billings/accounts/{accountId}:
+    get:
+      tags:
+        - CoziApi
+      summary: Find payment method by ID
+      operationId: findBillingAccountById
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Payment method created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentAccount'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: User is not authorized to access this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Payment method not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    put:
+      tags:
+        - CoziApi
+      summary: Mark the account with the given Id as default
+      operationId: markAccountAsDefault
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Nothing
+          content: { }
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: User is not authorized to access this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Payment method not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    delete:
+      tags:
+        - CoziApi
+      summary: Delete Account By Id
+      operationId: deleteById
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Nothing
+          content: { }
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: User is not authorized to access this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Payment method not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  #################################################
+  #               Bookings                        #
+  #################################################
+  /bookings/inquiries:
+    post:
+      tags:
+        - CoziApi
+      summary: Create a new Inquiry
+      operationId: createInquiry
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateInquiryRequest'
+      responses:
+        '201':
+          description: Returns the created Inquiry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Inquiry'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    get:
+      tags:
+        - CoziApi
+      summary: Get Inquiries of the authenticated user
+      operationId: getAuthenticatedUserInquiries
+      responses:
+        '200':
+          description: Returns a list of Bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Inquiry'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /bookings/inquiries/latest/{listingId}:
+    get:
+      tags:
+        - CoziApi
+      summary: Get an the latest inquiry <<sent>> by the authenticated user for a listing. This is used to check if the user has already inquired about a listing.
+      operationId: findLatestSentInquiryByListingId
+      parameters:
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Returns an inquiry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Inquiry'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /bookings/inquiries/{inquiryId}:
+    get:
+      tags:
+        - CoziApi
+      summary: Get an inquiry by Id
+      operationId: getInquiryById
+      parameters:
+        - name: inquiryId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Returns an inquiry
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Inquiry'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    delete:
+      tags:
+        - CoziApi
+      summary: Delete an Inquiry
+      operationId: deleteInquiryById
+      parameters:
+        - name: inquiryId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: No return value
+          content:
+            { }
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /bookings/accounts/{accountId}:
+    get:
+      tags:
+        - CoziApi
+      summary: Get Bookings for given account
+      operationId: findBookingsByAccountId
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Returns a list of Bookings belonging to the given account
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /bookings:
+    get:
+      tags:
+        - CoziApi
+      summary: Get Booking(s)
+      operationId: findBookings
+      responses:
+        '200':
+          description: Returns a list of Bookings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /bookings/host/{hostId}:
+    get:
+      tags:
+        - CoziApi
+      summary: Find all the Bookings belonging to a host
+      operationId: findHostBookings
+      parameters:
+        - name: hostId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Returns all the bookings belonging to a host
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Booking'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /bookings/{bookingId}:
+    get:
+      tags:
+        - CoziApi
+      summary: Get Bookings by ID
+      operationId: findBookingById
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Returns a the booking with the given ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    put:
+      tags:
+        - CoziApi
+      summary: Update booking state
+      parameters:
+        - name: bookingId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: action
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/UpdateBookingAction'
+      operationId: updateBookingState
+      responses:
+        '204':
+          description: No return value
+          content: { }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /bookings/{accountId}/{listingId}:
+    post:
+      tags:
+        - CoziApi
+      summary: Creat Booking
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: listingId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      operationId: bookListingIdByAccountId
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingDetails'
+      responses:
+        '200':
+          description: Returns a list of Bookings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  #################################################
+  #               Feedback                        #
+  #################################################
+  /feedbacks:
+    post:
+      tags:
+        - CoziApi
+      summary: Create a new Feedback
+      operationId: createFeedback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFeedbackRequest'
+      responses:
+        '201':
+          description: Created feedback
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Feedback'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    delete:
+      tags:
+        - CoziApi
+      summary: Delete a Feedback(s)
+      operationId: deleteFeedbacks
+      parameters:
+        - name: feedbackIds
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int64
+      responses:
+        '204':
+          description: Feedback(s) deleted
+          content: { }
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+    get:
+      tags:
+        - CoziApi
+      summary: Get Feedback(s)
+      operationId: findFeedbacks
+      parameters:
+        - name: feedbackIds
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int64
+      responses:
+        '200':
+          description: Returns a list of feedbacks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Feedback'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /feedbacks/search:
+    post:
+      tags:
+        - CoziApi
+      summary: |
+        Search for feedbacks
+      operationId: searchFeedbacks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeedbackSearchRequest'
+      responses:
+        '200':
+          description: List of feedbacks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Feedback'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  #################################################
+  #               Communication                   #
+  #################################################
+  /conversations/contact/{recipientId}:
+    post:
+      tags:
+        - CoziApi
+      summary: Creat a new message between authenticated user and given recipient
+      operationId: createMessage
+      parameters:
+        - name: recipientId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMessageRequest'
+      responses:
+        '201':
+          description: Created message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: User is not authorized to access this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: sender or recipient not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /conversations/users:
+    get:
+      tags:
+        - CoziApi
+      summary: Get all conversations for a user
+      operationId: findConversationsByUserId
+      responses:
+        '200':
+          description: List of conversations for the user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Conversation'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: User is not authorized to access this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Payment method not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /conversations/{conversationId}/archive:
+    patch:
+      tags:
+        - CoziApi
+      summary: Archive a conversation
+      operationId: archiveConversationById
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Nothing
+          content: { }
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: User is not authorized to access this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Conversation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /conversations/{conversationId}/unarchive:
+    patch:
+      tags:
+        - CoziApi
+      summary: Unarchive a conversation
+      operationId: unarchiveConversationById
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Nothing
+          content: { }
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: User is not authorized to access this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Conversation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /conversations/{conversationId}/messages/{recipientId}:
+    post:
+      tags:
+        - CoziApi
+      summary: Add a new message in the given conversation
+      operationId: addMessageToConversation
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: recipientId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMessageRequest'
+      responses:
+        '201':
+          description: Created message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: User is not authorized to access this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: sender or recipient not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /conversations/{conversationId}/messages:
+    get:
+      tags:
+        - CoziApi
+      summary: Get all messages in a conversation
+      operationId: findMessagesByConversationId
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Nothing
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Conversation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /conversations/{conversationId}/messages/{messageId}:
+    delete:
+      tags:
+        - CoziApi
+      summary: Delete a message in a specific conversation
+      operationId: deleteMessageById
+      parameters:
+        - name: conversationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: messageId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Nothing
+          content: { }
+        '401':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '403':
+          description: User is not authorized to access this resource
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '404':
+          description: Message or conversation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+components:
+  schemas:
+    #################################################
+    #               Account                         #
+    #################################################
+    AccountStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - INACTIVE
+        - DELETED
+        - SUSPENDED
+    AccountRole:
+      type: string
+      enum:
+        - ADMIN
+        - HOST
+        - GUEST
+    Account:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        userId:
+          type: string
+        role:
+          $ref: '#/components/schemas/AccountRole'
+        status:
+          $ref: '#/components/schemas/AccountStatus'
+        personalInformation:
+          $ref: '#/components/schemas/PersonalInformation'
+        settings:
+          $ref: '#/components/schemas/Settings'
+        profile:
+          $ref: '#/components/schemas/Profile'
+    AccountProjection:
+      type: object
+      required:
+        - id
+        - profile
+        - createdAt
+        - updatedAt
+        - legalName
+      properties:
+        id:
+          type: integer
+          format: int64
+        legalName:
+          $ref: '#/components/schemas/LegalName'
+        profile:
+          $ref: '#/components/schemas/Profile'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    PersonalInformation:
+      type: object
+      required:
+        - id
+        - email
+        - legalName
+        - phoneNumber
+        - address
+        - governmentId
+        - emergencyContact
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+        legalName:
+          $ref: '#/components/schemas/LegalName'
+        phoneNumber:
+          $ref: '#/components/schemas/PhoneNumber'
+        address:
+          $ref: '#/components/schemas/AccountAddress'
+        governmentId:
+          $ref: '#/components/schemas/GovernmentId'
+        emergencyContact:
+          $ref: '#/components/schemas/EmergencyContact'
+    Settings:
+      type: object
+      required:
+        - global
+      properties:
+        global:
+          $ref: '#/components/schemas/GlobalSettings'
+    GlobalSettings:
+      type: object
+      required:
+        - id
+        - defaultLanguage
+        - defaultCurrency
+        - defaultTimeZone
+      properties:
+        id:
+          type: integer
+          format: int64
+        defaultLanguage:
+          type: string
+        defaultCurrency:
+          type: string
+        defaultTimeZone:
+          type: string
+    Profile:
+      type: object
+      required:
+        - id
+        - birthDate
+        - profilePictureUrl
+        - about
+        - showPreviousBookings
+        - isEmailVerified
+        - isPhoneNumberVerified
+        - isGovernmentIdVerified
+      properties:
+        id:
+          type: integer
+          format: int64
+        birthDate:
+          type: string
+          format: date
+        profilePictureUrl:
+          type: string
+        about:
+          type: string
+        showPreviousBookings:
+          type: boolean
+        isEmailVerified:
+          type: boolean
+        isPhoneNumberVerified:
+          type: boolean
+        isGovernmentIdVerified:
+          type: boolean
+    LegalName:
+      required:
+        - firstName
+        - lastName
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+    PhoneNumber:
+      required:
+        - countryCode
+        - number
+      properties:
+        countryCode:
+          type: string
+        number:
+          type: string
+    AccountAddress:
+      required:
+        - street
+        - city
+        - state
+        - zipCode
+        - country
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zipCode:
+          type: string
+        country:
+          type: string
+    GovernmentId:
+      required:
+        - idFrontSideImage
+        - idBackSideImage
+        - selfieWithIdImage
+        - createdAt
+        - status
+      properties:
+        idFrontSideImage:
+          type: string
+        idBackSideImage:
+          type: string
+        selfieWithIdImage:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        reason:
+          type: string
+        status:
+          $ref: '#/components/schemas/GovernmentIdStatusEnum'
+    GovernmentIdStatusEnum:
+      type: string
+      enum:
+        - PENDING
+        - APPROVED
+        - REJECTED
+    EmergencyContact:
+      required:
+        - name
+        - relationship
+        - preferredLanguage
+        - email
+        - phoneNumber
+      properties:
+        name:
+          type: string
+        relationship:
+          type: string
+        preferredLanguage:
+          type: string
+        type:
+          type: string
+        phoneNumber:
+          $ref: '#/components/schemas/PhoneNumber'
+        email:
+          type: string
+
+    EmailUniquenessResponse:
+      type: object
+      required:
+        - isUnique
+      properties:
+        isUnique:
+          type: boolean
+    RegisterUserRequest:
+      type: object
+      required:
+        - email
+        - lastName
+        - firstName
+        - birthDate
+        - newsletter
+      properties:
+        email:
+          type: string
+        lastName:
+          type: string
+        firstName:
+          type: string
+        birthDate:
+          type: string
+          format: date
+        newsletter:
+          type: boolean
+    AccountPatchRequest:
+      type: object
+      required: []
+      properties:
+        about:
+          $ref: '#/components/schemas/AccountPatchAbout'
+        address:
+          $ref: '#/components/schemas/AccountPatchAccountAddress'
+        birthDate:
+          $ref: '#/components/schemas/AccountPatchBirthDate'
+        email:
+          $ref: '#/components/schemas/AccountPatchEmail'
+        emergencyContact:
+          $ref: '#/components/schemas/AccountPatchEmergencyContact'
+        governmentId:
+          $ref: '#/components/schemas/AccountPatchGovernmentId'
+        legalName:
+          $ref: '#/components/schemas/AccountPatchLegalName'
+        phoneNumber:
+          $ref: '#/components/schemas/AccountPatchPhoneNumber'
+        preferredLanguage:
+          $ref: '#/components/schemas/AccountPatchPreferredLanguage'
+        preferredCurrency:
+          $ref: '#/components/schemas/AccountPatchPreferredCurrency'
+        preferredTimeZone:
+          $ref: '#/components/schemas/AccountPatchPreferredTimeZone'
+        profilePictureUrl:
+          $ref: '#/components/schemas/AccountPatchProfilePictureUrl'
+        showPastBookings:
+          $ref: '#/components/schemas/AccountPatchShowPastBookings'
+    AccountPatchEmail:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+    AccountPatchLegalName:
+      type: object
+      required:
+        - firstName
+        - lastName
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+    AccountPatchPhoneNumber:
+      type: object
+      required:
+        - countryCode
+        - number
+      properties:
+        countryCode:
+          type: string
+        number:
+          type: string
+    AccountPatchAccountAddress:
+      type: object
+      required:
+        - street
+        - city
+        - state
+        - zipCode
+        - country
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zipCode:
+          type: string
+        country:
+          type: string
+    AccountPatchGovernmentId:
+      type: object
+      required:
+        - idFrontSideImage
+        - idBackSideImage
+        - selfieWithIdImage
+      properties:
+        idFrontSideImage:
+          type: string
+        idBackSideImage:
+          type: string
+        selfieWithIdImage:
+          type: string
+    AccountPatchEmergencyContact:
+      type: object
+      required:
+        - name
+        - relationship
+        - preferredLanguage
+        - email
+        - phoneNumber
+      properties:
+        name:
+          type: string
+        relationship:
+          type: string
+        preferredLanguage:
+          type: string
+        type:
+          type: string
+        phoneNumber:
+          $ref: '#/components/schemas/AccountPatchPhoneNumber'
+        email:
+          type: string
+    AccountPatchBirthDate:
+      type: object
+      required:
+        - birthDate
+      properties:
+        birthDate:
+          type: string
+          format: date
+    AccountPatchPreferredLanguage:
+      type: object
+      required:
+        - preferredLanguage
+      properties:
+        preferredLanguage:
+          type: string
+    AccountPatchPreferredCurrency:
+      type: object
+      required:
+        - preferredCurrency
+      properties:
+        preferredCurrency:
+          type: string
+    AccountPatchPreferredTimeZone:
+      type: object
+      required:
+        - preferredTimeZone
+      properties:
+        preferredTimeZone:
+          type: string
+    AccountPatchProfilePictureUrl:
+      type: object
+      required:
+        - profilePictureUrl
+      properties:
+        profilePictureUrl:
+          type: string
+    AccountPatchAbout:
+      type: object
+      required:
+        - about
+      properties:
+        about:
+          type: string
+    AccountPatchShowPastBookings:
+      type: object
+      required:
+        - showPastBooking
+      properties:
+        showPastBooking:
+          type: boolean
+
+    IdentityVerificationResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          $ref: '#/components/schemas/GovernmentIdStatusEnum'
+
+    #################################################
+    #               Listings                        #
+    #################################################
+    ListingState:
+      type: string
+      enum:
+        - DRAFT
+        - PUBLISHED
+        - UNLISTED
+        - DELETED
+    CalendarType:
+      type: string
+      enum:
+        - SYSTEM
+        - CONNECTED
+    AvailabilityState:
+      type: string
+      enum:
+        - OPEN
+        - BOOKED
+        - BLOCKED
+        - RESERVED
+
+    Listing:
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - state
+        - ownerId
+        - owner
+      properties:
+        id:
+          type: integer
+          format: int64
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        ownerId:
+          type: integer
+          format: int64
+        owner:
+          $ref: '#/components/schemas/Account'
+        state:
+          $ref: '#/components/schemas/ListingState'
+        title:
+          type: string
+        description:
+          type: string
+        guestCount:
+          type: integer
+          format: int64
+        bedroomCount:
+          type: integer
+          format: int64
+        bedCount:
+          type: integer
+          format: int64
+        bathroomCount:
+          type: integer
+          format: int64
+        price:
+          type: integer
+          format: int64
+        type:
+          $ref: '#/components/schemas/ListingType'
+        calendar:
+          $ref: '#/components/schemas/Calendar'
+        connectedCalendars:
+          type: array
+          items:
+            $ref: '#/components/schemas/Calendar'
+        address:
+          $ref: '#/components/schemas/ListingAddress'
+        location:
+          $ref: '#/components/schemas/Location'
+        amenities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Amenity'
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListingPhoto'
+    Calendar:
+      required:
+        - id
+        - name
+        - availabilities
+        - type
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/CalendarType'
+        availabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Availability'
+    Availability:
+      required:
+        - id
+        - calendar
+        - from
+        - to
+        - state
+      properties:
+        id:
+          type: integer
+          format: int64
+        calendar:
+          $ref: '#/components/schemas/Calendar'
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        state:
+          $ref: '#/components/schemas/AvailabilityState'
+    AvailabilityOptions:
+      properties:
+        price:
+          type: integer
+          format: int64
+        privateNotes:
+          type: string
+    ListingAddress:
+      required:
+        - id
+        - country
+        - city
+        - state
+      properties:
+        id:
+          type: integer
+          format: int64
+        country:
+          type: string
+        state:
+          type: string
+        city:
+          type: string
+        street:
+          type: string
+        zipCode:
+          type: string
+        quarter:
+          type: string
+        addressHint:
+          type: string
+    Location:
+      required:
+        - id
+        - country
+        - city
+      properties:
+        id:
+          type: integer
+          format: int64
+        lat:
+          type: number
+          format: double
+        lng:
+          type: number
+          format: double
+        country:
+          type: string
+        city:
+          type: string
+        monumentImageUrl:
+          type: string
+    Amenity:
+      required:
+        - name
+        - icon
+        - category
+        - description
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        icon:
+          type: string
+    ListingType:
+      required:
+        - name
+        - description
+        - icon
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        icon:
+          type: string
+    ListingPhoto:
+      required:
+        - id
+        - url
+        - position
+        - externalId
+      properties:
+        id:
+          type: integer
+          format: int64
+        url:
+          type: string
+        externalId:
+          type: string
+        position:
+          type: integer
+          format: int32
+
+    ListingProjection:
+      type: object
+      required:
+        - title
+        - owner
+        - photos
+        - address
+        - description
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        address:
+          $ref: '#/components/schemas/ListingAddress'
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListingPhoto'
+
+    ListingPatchRequest:
+      required: []
+      properties:
+        title:
+          $ref: '#/components/schemas/ListingPatchTitle'
+        description:
+          $ref: '#/components/schemas/ListingPatchDescription'
+        price:
+          $ref: '#/components/schemas/ListingPatchPrice'
+        type:
+          $ref: '#/components/schemas/ListingPatchType'
+        floorPlan:
+          $ref: '#/components/schemas/ListingPatchFloorPlan'
+        address:
+          $ref: '#/components/schemas/ListingPatchAddress'
+        location:
+          $ref: '#/components/schemas/ListingPatchLocation'
+        amenities:
+          $ref: '#/components/schemas/ListingPatchAmenities'
+        photos:
+          $ref: '#/components/schemas/ListingPatchPhotos'
+    ListingPatchTitle:
+      required:
+        - title
+      properties:
+        title:
+          type: string
+    ListingPatchDescription:
+      required:
+        - description
+      properties:
+        description:
+          type: string
+    ListingPatchPrice:
+      required:
+        - amount
+      properties:
+        amount:
+          type: integer
+          format: int64
+        currency:
+          type: string
+    ListingPatchType:
+      required:
+        - typeId
+      properties:
+        typeId:
+          type: integer
+          format: int64
+    ListingPatchFloorPlan:
+      required:
+        - guestCount
+        - bedroomCount
+        - bedCount
+        - bathroomCount
+      properties:
+        guestCount:
+          type: integer
+          format: int64
+        bedroomCount:
+          type: integer
+          format: int64
+        bedCount:
+          type: integer
+          format: int64
+        bathroomCount:
+          type: integer
+          format: int64
+    ListingPatchAddress:
+      required:
+        - country
+        - city
+      properties:
+        country:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        street:
+          type: string
+        zipCode:
+          type: string
+        quarter:
+          type: string
+        addressHint:
+          type: string
+    ListingPatchLocation:
+      required:
+        - lat
+        - lng
+      properties:
+        id:
+          type: integer
+          format: int64
+        lat:
+          type: number
+          format: double
+        lng:
+          type: number
+          format: double
+    ListingPatchAmenities:
+      required:
+        - amenities
+      properties:
+        amenities:
+          type: array
+          items:
+            type: integer
+            format: int64
+    ListingPatchPhotos:
+      required:
+        - photos
+      properties:
+        photos:
+          type: array
+          items:
+            $ref: '#/components/schemas/ListingPatchPhoto'
+    ListingPatchPhoto:
+      required:
+        - url
+        - position
+        - externalId
+      properties:
+        url:
+          type: string
+        position:
+          type: integer
+          format: int32
+        externalId:
+          type: string
+
+    SortDirection:
+      type: string
+      enum:
+        - ASC
+        - DESC
+    UnlistListingRequest:
+      required:
+        - from
+        - to
+      properties:
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+    SearchListingQuery:
+      properties:
+        checkin:
+          type: string
+          format: date
+        checkout:
+          type: string
+          format: date
+        guests:
+          $ref: '#/components/schemas/IntegerRange'
+        bedRooms:
+          $ref: '#/components/schemas/IntegerRange'
+        beds:
+          $ref: '#/components/schemas/IntegerRange'
+        price:
+          $ref: '#/components/schemas/LongRange'
+        placeId:
+          type: integer
+          format: int64
+        types:
+          type: array
+          items:
+            type: integer
+            format: int64
+        amenities:
+          type: array
+          items:
+            type: integer
+            format: int64
+        limit:
+          type: integer
+          format: int64
+        startFrom:
+          type: integer
+          format: int64
+    LongRange:
+      properties:
+        min:
+          type: integer
+          format: int64
+        max:
+          type: integer
+          format: int64
+    IntegerRange:
+      properties:
+        min:
+          type: integer
+          format: int32
+        max:
+          type: integer
+          format: int32
+
+    CreateAvailabilityRequest:
+      required:
+        - from
+        - to
+      properties:
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        options:
+          $ref: '#/components/schemas/AvailabilityOptions'
+    CreateLocationRequest:
+      required:
+        - country
+        - city
+      properties:
+        lat:
+          type: number
+          format: double
+        lng:
+          type: number
+          format: double
+        country:
+          type: string
+        city:
+          type: string
+        monumentImageUrl:
+          type: string
+    BookListingRequest:
+      required:
+        - from
+        - to
+      properties:
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+    ListingBookingResponse:
+      required:
+        - bookedAvailabilityId
+      properties:
+        bookedAvailabilityId:
+          type: integer
+          format: int64
+    ListingBookingPrice:
+      required:
+        - price
+        - currency
+      properties:
+        price:
+          type: integer
+          format: int64
+        currency:
+          type: string
+
+    #################################################
+    #               Billing Accounts                #
+    #################################################
+    PaymentMethod:
+      type: string
+      enum:
+        - PAYPAL
+        - CARD
+    PaymentAccount:
+      required:
+        - id
+        - method
+        - details
+        - isDefault
+        - description
+      properties:
+        id:
+          type: integer
+          format: int64
+        method:
+          $ref: '#/components/schemas/PaymentMethod'
+        isDefault:
+          type: boolean
+        description:
+          type: string
+        details:
+          $ref: '#/components/schemas/PaymentAccountDetails'
+    PaymentAccountDetails:
+      type: object
+      properties:
+        method:
+          $ref: '#/components/schemas/PaymentMethod'
+      discriminator:
+        propertyName: method
+        mapping:
+          PAYPAL: '#/components/schemas/PaypalDetails'
+          CARD: '#/components/schemas/CardDetails'
+    PaypalDetails:
+      allOf:
+        - $ref: '#/components/schemas/PaymentAccountDetails'
+        - type: object
+          properties:
+            maskedEmail:
+              type: string
+    CardDetails:
+      allOf:
+        - $ref: '#/components/schemas/PaymentAccountDetails'
+        - type: object
+          required:
+            - brand
+            - last4
+            - expiry
+            - isExpired
+          properties:
+            brand:
+              type: string
+            last4:
+              type: string
+            expiry:
+              type: string
+            isExpired:
+              type: boolean
+
+    StartFuturePaymentSessionResponse:
+      required:
+        - clientSecret
+      properties:
+        clientSecret:
+          type: string
+    CreateBillingAccountRequest:
+      required:
+        - method
+      properties:
+        method:
+          $ref: '#/components/schemas/PaymentMethod'
+        callbackUrl:
+          type: string
+        description:
+          type: string
+          default: "Dummy description."
+
+    #################################################
+    #               Bookings                        #
+    #################################################
+    UpdateBookingAction:
+      type: string
+      enum:
+        - cancel
+        - reject
+        - confirm
+    BookingStatus:
+      type: string
+      enum:
+        - CREATED
+        - EXPIRED
+        - CONFIRMED
+        - CANCELLED
+        - REJECTED
+        - PAYMENT_APPROVED
+        - PAYMENT_FAILED
+    BookingDetails:
+      required:
+        - note
+        - checkin
+        - checkout
+        - paymentAccountId
+      properties:
+        paymentAccountId:
+          type: integer
+          format: int64
+        note:
+          type: string
+        checkin:
+          type: string
+          format: date
+        checkout:
+          type: string
+          format: date
+    CreateInquiryRequest:
+      required:
+        - message
+        - checkin
+        - checkout
+        - listingId
+      properties:
+        message:
+          type: string
+        checkin:
+          type: string
+          format: date
+        checkout:
+          type: string
+          format: date
+        listingId:
+          type: integer
+          format: int64
+    Inquiry:
+      required:
+        - id
+        - createdAt
+        - updatedAt
+        - deleted
+        - message
+        - checkin
+        - checkout
+        - listing
+        - initiator
+        - status
+      properties:
+        id:
+          type: integer
+          format: int64
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        deleted:
+          type: boolean
+        message:
+          type: string
+        checkin:
+          type: string
+          format: date
+        checkout:
+          type: string
+          format: date
+        listing:
+          $ref: '#/components/schemas/Listing'
+        initiator:
+          $ref: '#/components/schemas/AccountProjection'
+        status:
+          $ref: '#/components/schemas/InquiryStatusEnum'
+        conversationId:
+          type: integer
+          format: int64
+    InquiryStatusEnum:
+      type: string
+      enum:
+        - CREATED
+        - SENT
+        - BOOKED
+        - CANCELLED
+    Booking:
+      required:
+        - id
+        - bookingStatus
+        - amount
+        - listingId
+        - listing
+        - userId
+        - host
+        - guestCount
+        - checkin
+        - checkout
+      properties:
+        id:
+          type: integer
+          format: int64
+        bookingStatus:
+          $ref: '#/components/schemas/BookingStatus'
+        guestCount:
+          type: integer
+          format: int32
+        amount:
+          type: integer
+          format: int64
+        listingId:
+          type: integer
+          format: int64
+        checkin:
+          type: string
+          format: date
+        checkout:
+          type: string
+          format: date
+        userId:
+          type: integer
+          format: int64
+        listing:
+          $ref: '#/components/schemas/Listing'
+        host:
+          $ref: '#/components/schemas/AccountProjection'
+
+    #################################################
+    #               Feedback                        #
+    #################################################
+    FeedbackType:
+      type: string
+      enum:
+        - REVIEW
+        - REPORT
+    EntityType:
+      type: string
+      enum:
+        - LISTING
+        - USER
+    ReportStatus:
+      type: string
+      enum:
+        - OPEN
+        - RESOLVED
+        - DISMISSED
+        - CONFIRMED
+    CreateFeedbackRequest:
+      required:
+        - type
+        - submitted_at
+        - entity_type
+        - entity_id
+        - by_user_id
+        - feedback
+      properties:
+        type:
+          $ref: '#/components/schemas/FeedbackType'
+        submitted_at:
+          type: string
+          format: date-time
+        to_entity_type:
+          $ref: '#/components/schemas/EntityType'
+        to_entity_id:
+          type: integer
+          format: int64
+        by_user_id:
+          type: integer
+          format: int64
+        feedback:
+          type: string
+        details:
+          oneOf:
+            - $ref: '#/components/schemas/ReviewRequest'
+            - $ref: '#/components/schemas/ReportRequest'
+    ReviewRequest:
+      required:
+        - cleanliness
+        - communication
+        - check_in
+        - accuracy
+        - location
+        - value
+      properties:
+        cleanliness:
+          type: integer
+          format: int32
+        communication:
+          type: integer
+          format: int32
+        check_in:
+          type: integer
+          format: int32
+        accuracy:
+          type: integer
+          format: int32
+        location:
+          type: integer
+          format: int32
+        value:
+          type: integer
+          format: int32
+    ReportRequest:
+      required:
+        - reason
+      properties:
+        reason:
+          type: string
+    FeedbackSearchRequest:
+      properties:
+        feedback_id:
+          type: integer
+          format: int64
+        by_user_id:
+          type: integer
+          format: int64
+        to_entity_id:
+          type: integer
+          format: int64
+        feedback_type:
+          $ref: '#/components/schemas/FeedbackType'
+        entity_type:
+          $ref: '#/components/schemas/EntityType'
+    Feedback:
+      required:
+        - id
+        - created_at
+        - updated_at
+        - submitted_at
+        - type
+        - to_entity_type
+        - to_entity_id
+        - by_user_id
+        - feedback
+      properties:
+        id:
+          type: integer
+          format: int64
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        submitted_at:
+          type: string
+          format: date-time
+        type:
+          $ref: '#/components/schemas/FeedbackType'
+        to_entity_type:
+          $ref: '#/components/schemas/EntityType'
+        to_entity_id:
+          type: integer
+          format: int64
+        by_user_id:
+          type: integer
+          format: int64
+        feedback:
+          type: string
+    Review:
+      allOf:
+        - $ref: '#/components/schemas/Feedback'
+        - type: object
+          required:
+            - cleanliness
+            - communication
+            - check_in
+            - accuracy
+            - location
+            - value
+          properties:
+            cleanliness:
+              type: integer
+              format: int32
+            communication:
+              type: integer
+              format: int32
+            check_in:
+              type: integer
+              format: int32
+            accuracy:
+              type: integer
+              format: int32
+            location:
+              type: integer
+              format: int32
+            value:
+              type: integer
+              format: int32
+    Report:
+      allOf:
+        - $ref: '#/components/schemas/Feedback'
+        - type: object
+          required:
+            - reason
+            - status
+          properties:
+            reason:
+              type: string
+            status:
+              $ref: '#/components/schemas/ReportStatus'
+
+    #################################################
+    #               Communication                   #
+    #################################################
+    ConversationTypeEnum:
+      type: string
+      enum:
+        - SUPPORT
+        - USER_INTERACTION
+    Conversation:
+      required:
+        - id
+        - user
+        - context
+        - createdAt
+        - updatedAt
+        - conversationType
+      properties:
+        id:
+          type: integer
+          format: int64
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        unreadCount:
+          type: integer
+          format: int32
+        lastMessageContent:
+          type: string
+        user:
+          $ref: '#/components/schemas/AccountProjection'
+        context:
+          $ref: '#/components/schemas/ConversationContext'
+        conversationType:
+          $ref: '#/components/schemas/ConversationTypeEnum'
+    Message:
+      required:
+        - id
+        - sender
+        - content
+        - recipient
+        - createAt
+        - updatedAt
+        - conversation
+      properties:
+        id:
+          type: integer
+          format: int64
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        sender:
+          $ref: '#/components/schemas/AccountProjection'
+        recipient:
+          $ref: '#/components/schemas/AccountProjection'
+        content:
+          type: string
+        conversation:
+          $ref: '#/components/schemas/Conversation'
+        attachmentUrls:
+          type: array
+          items:
+            type: string
+    ConversationContext:
+      required:
+        - booking
+      properties:
+        booking:
+          $ref: '#/components/schemas/Booking'
+
+    CreateMessageRequest:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+        context:
+          $ref: '#/components/schemas/CreateMessageContext'
+        conversationType:
+          $ref: '#/components/schemas/ConversationTypeEnum'
+        attachmentUrls:
+          type: array
+          items:
+            type: string
+    CreateMessageContext:
+      required:
+        - type
+        - resourceId
+      properties:
+        type:
+          $ref: '#/components/schemas/MessageContextTypeEnum'
+        resourceId:
+          type: integer
+          format: int64
+    MessageContextTypeEnum:
+      type: string
+      enum:
+        - SUPPORT
+        - INQUIRY
+
+    ProblemDetail:
+      required:
+        - type
+        - title
+        - status
+        - detail
+        - instance
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+          format: int32
+        detail:
+          type: string
+        instance:
+          type: string
+        violations:
+          type: object

@@ -1,0 +1,735 @@
+openapi: 3.0.2
+info:
+  title: Account service API
+  version: 1.1.0
+servers:
+  - url: /accounts-service
+tags:
+  - name: cozyApi
+paths:
+  /accounts/register:
+    post:
+      tags:
+        - cozyApi
+      summary: Register a new account.
+      operationId: register
+      requestBody:
+        description: The fields of the account that need to be updated.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUserRequest'
+      responses:
+        201:
+          description: Create and setup a new account for the authenticated user making the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+
+        500:
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /accounts/whoami:
+    get:
+      tags:
+        - cozyApi
+      summary: Get the current user account.
+      operationId: whoami
+      responses:
+        200:
+          description: Get the current user account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        401:
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        404:
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        500:
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /accounts/{accountId}:
+    get:
+      tags:
+        - cozyApi
+      summary: Get an account by its internal ID (not the oauth0 user ID)
+      operationId: findAccountById
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Account associated with the given ID.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        401:
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        403:
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        404:
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        500:
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+    patch:
+      tags:
+        - cozyApi
+      summary: Update an account by its internal ID (not the oauth0 user ID)
+      operationId: updateAccount
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: The fields of the account that need to be updated.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountPatchRequest'
+      responses:
+        200:
+          description: The updated account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+        400:
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        401:
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        500:
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /accounts/{accountId}/become-host:
+    put:
+      tags:
+        - cozyApi
+      summary: Change the role of an account to host.
+      operationId: makeUserHost
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        204:
+          description: No content
+          content: { }
+        401:
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        404:
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        500:
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /accounts/{accountId}/delete:
+    delete:
+      tags:
+        - cozyApi
+      summary: Delete the account with the given ID.
+      operationId: deleteAccount
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        204:
+          description: No content
+          content: { }
+        401:
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        404:
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        500:
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /accounts/{accountId}/revoke:
+    put:
+      tags:
+        - cozyApi
+      summary: Revoke an account.
+      operationId: revokeAccount
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        204:
+          description: The updated account
+          content: { }
+        401:
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        404:
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        500:
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+  /accounts:
+    get:
+      tags:
+        - cozyApi
+      summary: Get all registered accounts.
+      operationId: getAllAccounts
+      responses:
+        200:
+          description: The updated account
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+        401:
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        500:
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+components:
+  schemas:
+    ##########################################################################
+    #  Enums
+    ##########################################################################
+    AccountStatus:
+      type: string
+      enum:
+        - active
+        - inactive
+        - deleted
+        - suspended
+
+    AccountRole:
+      type: string
+      enum:
+        - admin
+        - host
+        - tenant
+
+    GovernmentIdType:
+      type: string
+      enum:
+        - passport
+        - driver_license
+        - national_id
+        - other
+
+    ##########################################################################
+    # Requests
+    ##########################################################################
+    AccountPatchRequest:
+      type: object
+      properties:
+        about:
+          $ref: '#/components/schemas/AccountPatchAbout'
+        address:
+          $ref: '#/components/schemas/AccountPatchAccountAddress'
+        birthDate:
+          $ref: '#/components/schemas/AccountPatchBirthDate'
+        email:
+          $ref: '#/components/schemas/AccountPatchEmail'
+        emergencyContact:
+          $ref: '#/components/schemas/AccountPatchEmergencyContact'
+        governmentId:
+          $ref: '#/components/schemas/AccountPatchGovernmentId'
+        legalName:
+          $ref: '#/components/schemas/AccountPatchLegalName'
+        phoneNumber:
+          $ref: '#/components/schemas/AccountPatchPhoneNumber'
+        preferredLanguage:
+          $ref: '#/components/schemas/AccountPatchPreferredLanguage'
+        preferredCurrency:
+          $ref: '#/components/schemas/AccountPatchPreferredCurrency'
+        preferredTimeZone:
+          $ref: '#/components/schemas/AccountPatchPreferredTimeZone'
+        profilePictureUrl:
+          $ref: '#/components/schemas/AccountPatchProfilePictureUrl'
+        showPastBookings:
+          $ref: '#/components/schemas/AccountPatchShowPastBookings'
+
+    AccountPatchEmail:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+
+    AccountPatchLegalName:
+      type: object
+      required:
+        - firstName
+        - lastName
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+
+    AccountPatchPhoneNumber:
+      type: object
+      required:
+        - countryCode
+        - number
+      properties:
+        countryCode:
+          type: string
+        number:
+          type: string
+
+    AccountPatchAccountAddress:
+      type: object
+      required:
+        - street
+        - city
+        - state
+        - zipCode
+        - country
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zipCode:
+          type: string
+        country:
+          type: string
+
+    AccountPatchGovernmentId:
+      type: object
+      required:
+        - type
+        - legalId
+        - fileUrl
+      properties:
+        type:
+          $ref: '#/components/schemas/GovernmentIdType'
+        legalId:
+          type: string
+        fileUrl:
+          type: string
+        expirationDate:
+          type: string
+          format: date
+
+    AccountPatchEmergencyContact:
+      type: object
+      required:
+        - name
+        - relationship
+        - preferredLanguage
+        - email
+        - phoneNumber
+      properties:
+        name:
+          type: string
+        relationship:
+          type: string
+        preferredLanguage:
+          type: string
+        type:
+          type: string
+        phoneNumber:
+          $ref: '#/components/schemas/AccountPatchPhoneNumber'
+        email:
+          type: string
+
+    AccountPatchBirthDate:
+      type: object
+      required:
+        - birthDate
+      properties:
+        birthDate:
+          type: string
+          format: date
+
+    AccountPatchPreferredLanguage:
+      type: object
+      required:
+        - preferredLanguage
+      properties:
+        preferredLanguage:
+          type: string
+
+    AccountPatchPreferredCurrency:
+      type: object
+      required:
+        - preferredCurrency
+      properties:
+        preferredCurrency:
+          type: string
+
+    AccountPatchPreferredTimeZone:
+      type: object
+      required:
+        - preferredTimeZone
+      properties:
+        preferredTimeZone:
+          type: string
+
+    AccountPatchProfilePictureUrl:
+      type: object
+      required:
+        - profilePictureUrl
+      properties:
+        profilePictureUrl:
+          type: string
+
+    AccountPatchAbout:
+      type: object
+      required:
+        - about
+      properties:
+        about:
+          type: string
+
+    AccountPatchShowPastBookings:
+      type: object
+      required:
+        - showPastBooking
+      properties:
+        showPastBooking:
+          type: boolean
+
+    RegisterUserRequest:
+      type: object
+      required:
+        - email
+        - lastName
+        - firstName
+        - birthDate
+        - newsletter # default to true, representing the user's choice to receive newsletters
+      properties:
+        email:
+          type: string
+        lastName:
+          type: string
+        firstName:
+          type: string
+        birthDate:
+          type: string
+          format: date
+        newsletter:
+          type: boolean
+
+    ##########################################################################
+    #  Models
+    ##########################################################################
+    Account:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        userId:
+          type: string
+        role:
+          $ref: '#/components/schemas/AccountRole'
+        status:
+          $ref: '#/components/schemas/AccountStatus'
+        personalInformation:
+          $ref: '#/components/schemas/PersonalInformation'
+        settings:
+          $ref: '#/components/schemas/Settings'
+        profile:
+          $ref: '#/components/schemas/Profile'
+
+    PersonalInformation:
+      type: object
+      required:
+        - id
+        - email
+        - legalName
+        - phoneNumber
+        - address
+        - governmentId
+        - emergencyContact
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+        legalName:
+          $ref: '#/components/schemas/LegalName'
+        phoneNumber:
+          $ref: '#/components/schemas/PhoneNumber'
+        address:
+          $ref: '#/components/schemas/AccountAddress'
+        governmentId:
+          $ref: '#/components/schemas/GovernmentId'
+        emergencyContact:
+          $ref: '#/components/schemas/EmergencyContact'
+
+    Settings:
+      type: object
+      required:
+        - global
+      properties:
+        global:
+          $ref: '#/components/schemas/GlobalSettings'
+
+    GlobalSettings:
+      type: object
+      required:
+        - id
+        - defaultLanguage
+        - defaultCurrency
+        - defaultTimeZone
+      properties:
+        id:
+          type: integer
+          format: int64
+        defaultLanguage:
+          type: string
+        defaultCurrency:
+          type: string
+        defaultTimeZone:
+          type: string
+
+    Profile:
+      type: object
+      required:
+        - id
+        - birthDate
+        - profilePictureUrl
+        - about
+        - showPreviousBookings
+        - isEmailVerified
+        - isPhoneNumberVerified
+        - isGovernmentIdVerified
+      properties:
+        id:
+          type: integer
+          format: int64
+        birthDate:
+          type: string
+          format: date
+        profilePictureUrl:
+          type: string
+        about:
+          type: string
+        showPreviousBookings:
+          type: boolean
+        isEmailVerified:
+          type: boolean
+        isPhoneNumberVerified:
+          type: boolean
+        isGovernmentIdVerified:
+          type: boolean
+
+    LegalName:
+      required:
+        - firstName
+        - lastName
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+
+    PhoneNumber:
+      required:
+        - countryCode
+        - number
+      properties:
+        countryCode:
+          type: string
+        number:
+          type: string
+
+    AccountAddress:
+      required:
+        - street
+        - city
+        - state
+        - zipCode
+        - country
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zipCode:
+          type: string
+        country:
+          type: string
+
+    GovernmentId:
+      required:
+        - type
+        - legalId
+        - fileUrl
+        - expirationDate
+      properties:
+        type:
+          type: string
+        legalId:
+          type: string
+        fileUrl:
+          type: string
+        expirationDate:
+          type: string
+          format: date
+
+    EmergencyContact:
+      required:
+        - name
+        - relationship
+        - preferredLanguage
+        - email
+        - phoneNumber
+      properties:
+        name:
+          type: string
+        relationship:
+          type: string
+        preferredLanguage:
+          type: string
+        type:
+          type: string
+        phoneNumber:
+          $ref: '#/components/schemas/PhoneNumber'
+        email:
+          type: string
+
+    ######################################################################
+    #                             System
+    ######################################################################
+
+    ProblemDetail:
+      required:
+        - type
+        - title
+        - status
+        - detail
+        - instance
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+          format: int32
+        detail:
+          type: string
+        instance:
+          type: string
+        violations:
+          type: object

@@ -1,0 +1,95 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+
+  rabbitmq:
+    host: ${RABBITMQ_HOST}
+    port: ${RABBITMQ_PORT}
+    username: ${RABBITMQ_USERNAME}
+    password: ${RABBITMQ_PASSWORD}
+
+db-scheduler:
+  enabled: true
+  table-name: "SYSTEM.SCHEDULED_TASKS"
+
+
+system:
+  liquibase:
+    change-log: classpath:db/system/db.changelog-master.xml
+    default-schema: system
+    liquibase-schema: system
+
+auth0:
+  userInfoUri: ${AUTH0_USER_INFO_URI:https://dntech.eu.auth0.com}
+  domain: ${AUTH0_DOMAIN}
+  clientId: ${AUTH0_CLIENT_ID}
+  clientSecret: ${AUTH0_CLIENT_SECRET}
+
+messaging:
+  resource-management-exchange: cozy.resource.management
+  booking-processing-exchange: cozy.booking.processing
+
+services:
+  account:
+    enabled: true
+    name: account
+    liquibase:
+      change-log: classpath:db/account/db.changelog-master.xml
+      default-schema: account_service
+      liquibase-schema: account_service
+    domain:
+      globalSettings:
+        language: "en"
+        timezone: "Berlin/Europe"
+        currency: "EUR"
+
+  listing:
+    name: listing
+    enabled: true
+    liquibase:
+      change-log: classpath:db/listing/db.changelog-master.xml
+      default-schema: listing_service
+      liquibase-schema: listing_service
+    domain:
+      availability:
+        defaultNumberOfCalendar: 4
+
+  billing:
+    name: billing
+    enabled: true
+    liquibase:
+      change-log: classpath:db/billing/db.changelog-master.xml
+      default-schema: billing_service
+      liquibase-schema: billing_service
+    stripe:
+      api-key: ${STRIPE_API_KEY}
+      currency: ${STRIPE_CURRENCY:EUR}
+      success-callback-url: ${STRIPE_SUCCESS_URL:http://localhost:3000/en/account/settings/billing}
+
+
+  booking:
+    name: booking
+    enabled: true
+    liquibase:
+      change-log: classpath:db/booking/db.changelog-master.xml
+      default-schema: booking_service
+      liquibase-schema: booking_service
+    domain:
+      currency: ${BOOKING_CURRENCY:EUR}
+
+  communication:
+    name: communication
+    enabled: true
+    liquibase:
+      change-log: classpath:db/communication/db.changelog-master.xml
+      default-schema: communication_service
+      liquibase-schema: communication_service
+
+db-scheduler-log:
+  enabled: true
+  table-name: "SYSTEM.SCHEDULED_EXECUTION_LOGS"
