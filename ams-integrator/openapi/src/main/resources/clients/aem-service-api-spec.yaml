@@ -31,3 +31,79 @@ components:
   schemas:
     ErrorResponse:
       type: object
+
+    SearchResponse:
+      type: object
+      required:
+        - hits
+        - results
+      properties:
+        hits:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchHit'
+        results:
+          type: integer
+          format: int32
+
+    SearchHit:
+      type: object
+      properties:
+        name:
+          type: string
+        path:
+          type: string
+        title:
+          type: string
+        excerpt:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/SearchHitMetadata'
+
+    SearchHitMetadata:
+      type: object
+      properties:
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetAction'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetLinkRel'
+        properties:
+          type: object
+
+    AssetLinkRel:
+      type: object
+      properties:
+        href:
+          type: string
+        rel:
+          type: array
+          items:
+            type: string
+
+    AssetAction:
+      type: object
+      properties:
+        href:
+          type: string
+        method:
+          type: string
+        name:
+          type: string
+        title:
+          type: string
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchHitMetadataField'
+
+    SearchHitMetadataField:
+        type: object
+        properties:
+          name:
+            type: string
+          type:
+            type: string

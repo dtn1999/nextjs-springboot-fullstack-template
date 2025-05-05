@@ -9,6 +9,10 @@
     </parent>
     <artifactId>Server</artifactId>
     <name>Server entry point</name>
+    <properties>
+        <!--        Docker image tags   -->
+        <imageTags/>
+    </properties>
     <dependencies>
         <!--    modules dep    -->
         <dependency>
@@ -86,6 +90,9 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <image>
+                        <tags>${imageTags}</tags>
+                    </image>
                     <layers>
                         <enabled>true</enabled>
                     </layers>

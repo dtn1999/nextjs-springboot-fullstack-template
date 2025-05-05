@@ -34,20 +34,100 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemDetail'
+
   ###########################################
   # Search
   ###########################################
 
-components:
-  parameters:
-    ProviderHeader:
-      name: X-PROVIDER
-      in: header
-      description: Social media provider
-      required: true
-      schema:
-        $ref: '#/components/schemas/AMSProvider'
+  /assets/search:
+    get:
+      tags:
+        - AMSIntegrator
+      summary: Search for assets.
+      operationId: searchAssets
+      parameters:
+        - name: q
+          in: query
+          description: Search query.
+          required: true
+          schema:
+            type: string
+        - name: provider
+          in: query
+          description: Social media provider
+          required: false
+          schema:
+            $ref: '#/components/schemas/AMSProvider'
+        - name: offset
+          in: query
+          description: Offset for pagination.
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: limit
+          in: query
+          description: Limit for pagination.
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        200:
+          description: Search results.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExternalAsset'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
 
+  /assets/{provider}/{assetId}:
+    get:
+      tags:
+        - AMSIntegrator
+      summary: Get asset by ID.
+      operationId: getAssetById
+      parameters:
+        - name: provider
+          in: path
+          description: Social media provider
+          required: true
+          schema:
+            $ref: '#/components/schemas/AMSProvider'
+        - name: assetId
+          in: path
+          description: Asset ID.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Asset details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalAsset'
+        400:
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        404:
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+
+components:
   schemas:
     ###########################################
     # Enums
@@ -56,6 +136,15 @@ components:
       type: string
       enum:
         - AEM # Adobe Experience Manager
+
+    MediaType:
+      type: string
+      enum:
+        - IMAGE
+        - VIDEO
+        - AUDIO
+        - DOCUMENT
+        - OTHER
     ###########################################
     # Objects
     ###########################################
@@ -69,6 +158,34 @@ components:
           $ref: '#/components/schemas/AMSProvider'
         enabled:
           type: boolean
+
+    ExternalAsset:
+      type: object
+      required:
+        - id
+        - type
+        - title
+        - url
+        - provider
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/MediaType'
+        title:
+          type: string
+        url:
+          type: string
+        provider:
+          $ref: '#/components/schemas/AMSProvider'
+        createAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        metadata:
+          type: object
 
     ProblemDetail:
       required:

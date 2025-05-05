@@ -24,5 +24,5 @@ mvn clean install
 ### Run the project
 
 ```bash
-mvn spring-boot:run -Dspring-boot.run.profiles=development
+mvn spring-boot:run -Dspring-boot.run.profiles=compose
 ```
