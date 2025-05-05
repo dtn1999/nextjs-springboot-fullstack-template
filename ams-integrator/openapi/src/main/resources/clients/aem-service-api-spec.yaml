@@ -1,0 +1,33 @@
+openapi: 3.0.1
+info:
+  title: Adobe Experience Manager Sub API Spec
+  version: v1.0.0
+servers:
+  - url: /
+tags:
+  - name: AEM
+paths:
+  /search:
+    post:
+      tags:
+        - aem
+      summary: Search for assets
+      operationId: searchAssets
+      responses:
+        200:
+          description: ID of the post
+          content: { }
+        400:
+          description: Bad Request
+          content: { }
+        401:
+          description: Unauthorized
+          content: { }
+        500:
+          description: Internal Server Error
+          content: { }
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object

@@ -1,0 +1,95 @@
+openapi: 3.0.2
+info:
+  title: Social Media Microservice API
+  version: 1.0.0
+servers:
+  - url: http://localhost:1616/ams
+tags:
+  - name: Assets management system (AMS) integrator
+    description: |
+      This API is used to integrate Newsmind Stories with external assets management systems (AMS).
+      It provides endpoints for searching and retrieving assets.
+paths:
+  ###########################################
+  # Providers
+  ###########################################
+  /providers:
+    get:
+      tags:
+        - AMSIntegrator
+      summary: List all the supported providers.
+      operationId: findAllProviders
+      responses:
+        200:
+          description: Find all providers.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Provider'
+        500:
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  ###########################################
+  # Search
+  ###########################################
+
+components:
+  parameters:
+    ProviderHeader:
+      name: X-PROVIDER
+      in: header
+      description: Social media provider
+      required: true
+      schema:
+        $ref: '#/components/schemas/AMSProvider'
+
+  schemas:
+    ###########################################
+    # Enums
+    ###########################################
+    AMSProvider:
+      type: string
+      enum:
+        - AEM # Adobe Experience Manager
+    ###########################################
+    # Objects
+    ###########################################
+    Provider:
+      type: object
+      required:
+        - name
+        - enabled
+      properties:
+        name:
+          $ref: '#/components/schemas/AMSProvider'
+        enabled:
+          type: boolean
+
+    ProblemDetail:
+      required:
+        - type
+        - title
+        - status
+        - detail
+        - instance
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+          format: int32
+        detail:
+          type: string
+        instance:
+          type: string
+        code:
+          type: string
+        contextData:
+          type: object

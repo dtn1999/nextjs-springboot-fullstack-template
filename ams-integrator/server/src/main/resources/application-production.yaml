@@ -1,0 +1,162 @@
+spring:
+  # Should ensure that docker is just used for development
+  docker:
+    compose:
+      enabled: false
+      lifecycle-management: none
+
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    url: jdbc:mariadb://${DB_ADDR}:${DB_PORT}/${DB_DATABASE}?useMysqlMetadata=true&autoReconnect=true&autoReconnectForPools=true&useUnicode=true&characterEncoding=utf8
+
+platform:
+  providers:
+    INSTAGRAM:
+      enabled: true
+      oauth2:
+        registration:
+          clientId: ${META_OAUTH2_CLIENT_ID}
+          clientSecret: ${META_OAUTH2_CLIENT_SECRET}
+          redirectUri: ${META_INSTAGRAM_OAUTH2_REDIRECT_URL}
+          authorization-grant-type: authorization_code
+          scope:
+            - email
+            - public_profile
+            - business_management
+            - pages_show_list
+            - instagram_content_publish
+            - instagram_basic
+            - instagram_manage_insights
+        provider:
+          authorizationUri: https://www.facebook.com/v17.0/dialog/oauth
+          tokenUri: https://graph.facebook.com/v17.0/oauth/access_token
+          userInfoUri: https://graph.facebook.com/v17.0/me
+      rest:
+        baseUrl: ${META_REST_API_ENDPOINT:https://graph.facebook.com}
+        apiVersion: ${META_REST_API_VERSION:v18.0}
+      postSpecifications:
+        image:
+          postTypes:
+            - IMAGE
+            - STORY
+        video:
+          postTypes:
+            - STORY
+            - REEL
+
+    FACEBOOK:
+      enabled: true
+      oauth2:
+        registration:
+          clientId: ${META_OAUTH2_CLIENT_ID}
+          clientSecret: ${META_OAUTH2_CLIENT_SECRET}
+          redirectUri: ${META_FACEBOOK_OAUTH2_REDIRECT_URL}
+          authorization-grant-type: authorization_code
+          scope:
+            - public_profile
+            - pages_read_engagement
+            - pages_read_user_content
+            - pages_show_list
+            - pages_manage_posts
+            - business_management
+            - read_insights
+        provider:
+          authorizationUri: https://www.facebook.com/v17.0/dialog/oauth
+          tokenUri: https://graph.facebook.com/v17.0/oauth/access_token
+          userInfoUri: https://graph.facebook.com/v17.0/me
+      rest:
+        baseUrl: ${META_REST_API_ENDPOINT:https://graph.facebook.com}
+        apiVersion: ${META_REST_API_VERSION:v19.0}
+        reelUrl: https://rupload.facebook.com/video-upload/v19.0
+        timeoutMs: ${FACEBOOK_APICLIENT_TIMEOUT_MS:10000}
+      postSpecifications:
+        image:
+          postTypes:
+            - IMAGE
+            - STORY
+        video:
+          postTypes:
+            - VIDEO
+            - STORY
+            - REEL
+
+    LINKEDIN:
+      enabled: true
+      oauth2:
+        registration:
+          clientId: ${LINKEDIN_OAUTH2_CLIENT_ID}
+          clientSecret: ${LINKEDIN_OAUTH2_CLIENT_SECRET}
+          clientAuthenticationMethod: client_secret_post
+          redirectUri: ${LINKEDIN_OAUTH2_REDIRECT_URL}
+          authorization-grant-type: authorization_code
+          scope:
+            - w_member_social
+#            - r_member_social
+            - r_liteprofile
+            - w_organization_social
+            - r_organization_social
+            - r_organization_admin
+        provider:
+          authorizationUri: https://www.linkedin.com/oauth/v2/authorization
+          tokenUri: https://www.linkedin.com/oauth/v2/accessToken
+          userInfoUri: https://api.linkedin.com/v2/me
+      rest:
+        baseUrl: ${LINKEDIN_REST_API_ENDPOINT:https://api.linkedin.com}
+        apiVersion: ${LINKEDIN_REST_API_VERSION:202406}
+
+    X:
+      enabled: true
+      oauth2:
+        registration:
+          clientId: ${X_OAUTH2_CLIENT_ID}
+          clientSecret: ${X_OAUTH2_CLIENT_SECRET}
+          redirectUri: ${X_OAUTH2_REDIRECT_URL}
+          authorization-grant-type: authorization_code
+          # https://developer.twitter.com/en/docs/authentication/guides/v2-authentication-mapping
+          scope:
+            - users.read
+            - tweet.write
+            - tweet.read
+            - like.read
+            - tweet.moderate.write
+            - offline.access
+        provider:
+          authorizationUri: https://twitter.com/i/oauth2/authorize
+          tokenUri: https://api.twitter.com/2/oauth2/token
+          userInfoUri: https://api.twitter.com/2/me
+      rest:
+        baseUrl: ${X_REST_API_URL:https://api.twitter.com/}
+        apiVersion: ${X_API_VERSION:2}
+
+      keys:
+        consumer-key: ${X_CONSUMER_KEY}
+        consumer-secret: ${X_CONSUMER_SECRET}
+        access-token: ${X_ACCESS_TOKEN}
+        access-token-secret: ${X_ACCESS_TOKEN_SECRET}
+      cache:
+        search-cache-ttl-in-seconds: ${X_SEARCH_CACHE_TTL_IN_SECONDS:3600}
+        status-cache-ttl-in-seconds: ${X_STATUS_CACHE_TTL_IN_SECONDS:86400}
+
+    TIKTOK:
+      enabled: true
+      oauth2:
+        registration:
+          clientId: ${TIKTOK_OAUTH2_CLIENT_ID}
+          clientSecret: ${TIKTOK_OAUTH2_CLIENT_SECRET}
+          redirectUri: ${TIKTOK_OAUTH2_REDIRECT_URL}
+          authorization-grant-type: authorization_code
+          scope:
+            - user.info.basic
+            - user.info.profile
+            - video.publish
+            - video.upload
+            - video.list
+        provider:
+          authorizationUri: https://www.tiktok.com/v2/auth/authorize/
+          tokenUri: https://open.tiktokapis.com/v2/oauth/token/
+          userInfoUri: https://open.tiktokapis.com/v2/user/info/
+      rest:
+        baseUrl: https://open.tiktokapis.com/
+        apiVersion: v20.0
