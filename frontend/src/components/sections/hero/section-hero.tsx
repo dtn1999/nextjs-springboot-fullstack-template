@@ -1,6 +1,5 @@
 import React from "react";
 import Image from "next/image";
-import { HeroSearchForm } from "./hero-search-form";
 
 export interface Props {
   className?: string;
@@ -31,10 +30,6 @@ export function SectionHero({ className = "" }: Props) {
             sizes="(max-width: 639px) 100vw, (max-width: 767px) 80vw, (max-width: 1023px) 50vw, 527px"
           />
         </div>
-      </div>
-
-      <div className="z-10 mb-3 hidden w-full md:block lg:mb-0 xl:-mt-40">
-        <HeroSearchForm />
       </div>
     </div>
   );

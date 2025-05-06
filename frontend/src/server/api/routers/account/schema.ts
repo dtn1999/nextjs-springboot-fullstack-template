@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { DATE_FORMAT, DateSchema } from "@/server/api/schema";
 import { differenceInYears, parse } from "date-fns";
-import { GovernmentIdStatusEnum } from "@/server/generated/cozi";
+import { GovernmentIdStatusEnum } from "@/server/generated/app.backend.api";
 
 export const RegistrationFormSchema = z.object({
   firstname: z.string().nonempty(),

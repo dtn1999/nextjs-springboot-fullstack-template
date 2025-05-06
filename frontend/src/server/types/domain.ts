@@ -22,7 +22,7 @@ import {
   SchemaProblemDetail,
   SchemaProfile,
   SchemaStartFuturePaymentSessionResponse,
-} from "@/server/generated/cozi";
+} from "@/server/generated/app.backend.api";
 
 export interface SessionUser {
   id: number;

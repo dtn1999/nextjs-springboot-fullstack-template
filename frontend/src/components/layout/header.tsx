@@ -6,11 +6,7 @@ import { NotificationDropdown } from "@/features/users/components/notification-d
 import { UserDropdown } from "@/features/users/components/user-dropdown";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
-import { HeroSearchForm2Mobile } from "@/components/sections/hero/mobile-hero-search-form-container";
 import { Link, usePathname } from "@/i18n/routing";
-import { useSessionUtils } from "@/hooks/use-auth";
-import { isHost } from "@/server/auth/utils";
-import { NavCta } from "@/components/layout/nav-cta";
 import { NavItem } from "@/types";
 
 const navItems: NavItem[] = [
@@ -29,10 +25,8 @@ interface Props {
   className?: string;
 }
 
-export function AppHeader({ hideNavigation, className }: Props) {
+export function Header({ hideNavigation, className }: Props) {
   const pathname = usePathname();
-  const { user } = useSessionUtils();
-  const isUserHost = isHost(user);
 
   return (
     <header className="nc-Header nc-header-bg sticky left-0 right-0 top-0 z-40 flex h-20 w-full items-center shadow-sm">
@@ -68,11 +62,9 @@ export function AppHeader({ hideNavigation, className }: Props) {
 
         {/* trailing */}
         <div className="flex items-center">
-          <HeroSearchForm2Mobile />
           <div className="flex items-center">
             <div className="flex items-center space-x-4">
               <div className="hidden items-center space-x-4 lg:flex">
-                <NavCta isUserHost={isUserHost ?? false} />
                 <div className="flex items-center">
                   <LanguageDropdown />
                   <CurrencyDropdown />

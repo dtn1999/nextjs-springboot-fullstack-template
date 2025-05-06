@@ -1,5 +1,5 @@
 import { SessionUser } from "@/server/types/domain";
-import { AccountRole } from "../generated/cozi";
+import { AccountRole } from "../generated/app.backend.api";
 
 export enum ModalType {
   LOGIN_OR_REGISTRATION = "login_or_registration",

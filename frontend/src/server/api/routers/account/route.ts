@@ -15,7 +15,7 @@ import {
 } from "@/server/types/domain";
 import { z } from "zod";
 import { fetcherResponseHandlerV2 } from "@/server/utils";
-import { GovernmentIdStatusEnum } from "@/server/generated/cozi";
+import { GovernmentIdStatusEnum } from "@/server/generated/app.backend.api";
 
 export const accountRouter = createTRPCRouter({
   verificationGovernmentId: protectedProcedure

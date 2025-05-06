@@ -28,7 +28,7 @@ import { ACCOUNT_HELPER } from "@/server/api/routers/account/helper";
 import { formatter } from "@/lib/formatter";
 import { NavGroup } from "@/types";
 import { cn } from "@/lib/utils";
-import { AccountRole } from "@/server/generated/cozi";
+import { AccountRole } from "@/server/generated/app.backend.api";
 
 const NAVIGATION_ITEMS: NavGroup[] = [
   {

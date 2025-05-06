@@ -13,7 +13,7 @@ import { ZodError } from "zod";
 import createFetchClient from "openapi-fetch";
 import { auth } from "@/server/auth";
 import { env } from "@/env";
-import { paths } from "@/server/generated/cozi";
+import { paths } from "@/server/generated/app.backend.api";
 import { isAdmin, isHost } from "@/server/auth/utils";
 
 /**

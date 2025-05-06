@@ -5,7 +5,7 @@ import { authConfig } from "@/server/auth/config";
 import { hasRole, MODAL_TYPE_PARAM, ModalType } from "@/server/auth/utils";
 import { headers } from "next/headers";
 import { SecurityException } from "@/server/types/exception";
-import { AccountRole } from "@/server/generated/cozi";
+import { AccountRole } from "@/server/generated/app.backend.api";
 
 export async function secureRoute(
   role: AccountRole,

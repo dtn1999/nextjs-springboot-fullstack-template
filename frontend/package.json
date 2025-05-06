@@ -1,13 +1,13 @@
 {
-  "name": "tailadmin-next-typescript-pro-2.0",
+  "name": "nextjs-springboot-fullstack-template",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npx openapi-typescript openapi/cozi-api-spec.yaml -o src/server/generated/cozi.ts --enum --enum-values --root-types --dedupe-enums --properties-required-by-default && next build",
+    "build": "npx openapi-typescript openapi/app-backend-api-spec.yaml -o src/server/generated/app.backend.api.ts --enum --enum-values --root-types --dedupe-enums --properties-required-by-default && next build",
     "start": "next start",
     "lint": "next lint",
-    "openapi": "npx openapi-typescript openapi/cozi-api-spec.yaml -o src/server/generated/cozi.ts --enum --enum-values --root-types --dedupe-enums --properties-required-by-default"
+    "openapi": "npx openapi-typescript openapi/app-backend-api-spec.yaml -o src/server/generated/app.backend.api.ts --enum --enum-values --root-types --dedupe-enums --properties-required-by-default"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

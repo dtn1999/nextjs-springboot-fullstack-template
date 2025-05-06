@@ -1,7 +1,7 @@
 import type { DefaultSession } from "next-auth";
 import { SessionUser } from "@/server/types/domain";
 import React from "react";
-import { AccountRole } from "@/server/generated/cozi";
+import { AccountRole } from "@/server/generated/app.backend.api";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {

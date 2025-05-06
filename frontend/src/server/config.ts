@@ -1,5 +1,5 @@
 import createFetchClient from "openapi-fetch";
-import { type paths } from "@/server/generated/cozi";
+import { type paths } from "@/server/generated/app.backend.api";
 import { env } from "@/env";
 
 export const coziApi = createFetchClient<paths>({

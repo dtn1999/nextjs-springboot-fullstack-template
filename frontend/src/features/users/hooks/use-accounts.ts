@@ -5,7 +5,7 @@ import { hasRole, isAdmin } from "@/server/auth/utils";
 import { Account, ProblemDetail } from "@/server/types/domain";
 import { notFound } from "next/navigation";
 import { SecurityException } from "@/server/types/exception";
-import { AccountRole } from "@/server/generated/cozi";
+import { AccountRole } from "@/server/generated/app.backend.api";
 
 interface UseAuthenticatedAccountQueryOptions {
   /**

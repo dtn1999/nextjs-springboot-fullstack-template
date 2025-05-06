@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
 import { NavCta } from "@/components/layout/nav-cta";
 import { useSessionUtils } from "@/hooks/use-auth";
 import { isHost } from "@/server/auth/utils";
-import { AccountRole } from "@/server/generated/cozi";
+import { AccountRole } from "@/server/generated/app.backend.api";
 
 export interface SidebarNavGroup {
   title: string;
