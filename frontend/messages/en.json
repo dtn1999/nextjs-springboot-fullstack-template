@@ -1,0 +1,52 @@
+{
+  "Header": {
+    "cta": "Search",
+    "Navigation": {
+      "home": "Home",
+      "about": "About us",
+      "properties": "Properties",
+      "contact": "Contact"
+    },
+    "AvatarMenu": {
+      "login": "Log in",
+      "register": "Sign up",
+      "logout": "Log out",
+      "dashboard": "Dashboard",
+      "inquiries": "Inquiries",
+      "favorites": "Favorites",
+      "settings": "Account settings"
+    }
+  },
+  "HomePage": {
+    "Hero": {
+      "title": "Owns Real Estate Assets in the United States",
+      "description": "Rent unique accommodation for a set period of time, whether for a quick getaway or a long stay, with Cozy Stay - where comfort meets flexibility.",
+      "cta": "Find a property"
+    },
+    "ServicesSection": {
+      "title": "What Can We Help You Find?"
+    },
+    "PropertiesSection": {
+      "title": "Featured Properties",
+      "description": "Discover our selection of properties available for rental and sale.",
+      "cta": "View all properties"
+    },
+    "WhyUsSection": {
+      "title": "Why Choose Us?",
+      "description": "We are a team of professionals who are passionate about real estate and dedicated to providing the best service to our clients. Our goal is to help you find the perfect property that meets your needs and exceeds your expectations."
+    },
+    "FeaturedLandsSection": {
+      "title": "Check Our Featured Lands",
+      "description": "Explore our selection of lands available for sale."
+    },
+    "AgentsSection": {
+      "title": "Need A Land Or A House? Contact Our Agents",
+      "subtitle": "Meet our agents",
+      "cta": {
+        "title": "Become a Real Estate Agent",
+        "description": "Join our team of real estate agents and start your career in the real estate industry.",
+        "cta": "Register now"
+      }
+    }
+  }
+}

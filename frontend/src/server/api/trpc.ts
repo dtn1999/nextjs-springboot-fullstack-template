@@ -6,11 +6,15 @@
  * TL;DR - This is where all the tRPC server stuff is created and plugged in. The pieces you will
  * need to use are documented accordingly near the end.
  */
+
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
-
+import createFetchClient from "openapi-fetch";
 import { auth } from "@/server/auth";
+import { env } from "@/env";
+import { paths } from "@/server/generated/cozi";
+import { isAdmin, isHost } from "@/server/auth/utils";
 
 /**
  * 1. CONTEXT
@@ -26,8 +30,22 @@ import { auth } from "@/server/auth";
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   const session = await auth();
+  let coziApi;
+  if (session?.tokens?.accessToken) {
+    coziApi = createFetchClient<paths>({
+      baseUrl: env.NEXT_PUBLIC_API_GATEWAY_URL,
+      headers: {
+        Authorization: `Bearer ${session?.tokens?.accessToken}`,
+      },
+    });
+  } else {
+    coziApi = createFetchClient<paths>({
+      baseUrl: env.NEXT_PUBLIC_API_GATEWAY_URL,
+    });
+  }
 
   return {
+    coziApi,
     session,
     ...opts,
   };
@@ -118,12 +136,44 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(({ ctx, next }) => {
-    if (!ctx.session?.user) {
+    if (
+      !ctx.session ||
+      !ctx.session.user ||
+      !ctx.session?.tokens?.accessToken
+    ) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
     }
     return next({
       ctx: {
         // infers the `session` as non-nullable
+        session: { ...ctx.session, user: ctx.session.user },
+      },
+    });
+  });
+
+export const hostProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(({ ctx, next }) => {
+    if (!ctx.session || !isHost(ctx.session.user)) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    return next({
+      ctx: {
+        session: { ...ctx.session, user: ctx.session.user },
+      },
+    });
+  });
+
+export const adminProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(({ ctx, next }) => {
+    if (!ctx.session || !isAdmin(ctx.session.user)) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    return next({
+      ctx: {
         session: { ...ctx.session, user: ctx.session.user },
       },
     });

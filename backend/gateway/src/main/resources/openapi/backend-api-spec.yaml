@@ -1,0 +1,860 @@
+openapi: 3.0.2
+info:
+  title: Backend Service API
+  version: 1.0.0
+servers:
+  - url: /backend-service
+
+tags:
+  - name: BackendApi
+    x-displayName: BackendApi
+paths:
+  #################################################
+  #               Account                         #
+  #################################################
+  /accounts/check-email-uniqueness:
+    post:
+      tags:
+        - BackendApi
+      summary: Check if an email is unique.
+      operationId: checkEmailUniqueness
+      parameters:
+        - in: query
+          name: email
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: >-
+            Boolean response indicating if the email is unique or not. True if
+            unique, false otherwise.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmailUniquenessResponse"
+        "500":
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+  /accounts/register:
+    post:
+      tags:
+        - BackendApi
+      summary: Register a new account.
+      operationId: register
+      requestBody:
+        description: The fields of the account that need to be updated.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterUserRequest"
+      responses:
+        "201":
+          description: >-
+            Create and setup a new account for the authenticated user making the
+            request.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "500":
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+  /accounts/whoami:
+    get:
+      tags:
+        - BackendApi
+      summary: Get the current user account.
+      operationId: whoami
+      responses:
+        "200":
+          description: Get the current user account.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "401":
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+  /accounts/{accountId}:
+    get:
+      tags:
+        - BackendApi
+      summary: Get an account by its internal ID (not the oauth0 user ID)
+      operationId: findAccountById
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Account associated with the given ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "401":
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "403":
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+    patch:
+      tags:
+        - BackendApi
+      summary: Update an account by its internal ID (not the oauth0 user ID)
+      operationId: updateAccount
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: The fields of the account that need to be updated.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountPatchRequest"
+      responses:
+        "200":
+          description: The updated account
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Account"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "401":
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+  /accounts/{accountId}/become-host:
+    put:
+      tags:
+        - BackendApi
+      summary: Change the role of an account to host.
+      operationId: makeUserHost
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: No content
+          content: {}
+        "401":
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+  /accounts/{accountId}/suspend:
+    put:
+      tags:
+        - BackendApi
+      summary: Change ban the account with the given ID.
+      operationId: suspendAccount
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: No content
+          content: {}
+        "401":
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+  /accounts/{accountId}/delete:
+    delete:
+      tags:
+        - BackendApi
+      summary: Delete the account with the given ID.
+      operationId: deleteAccount
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: No content
+          content: {}
+        "401":
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+  /accounts/{accountId}/revoke:
+    put:
+      tags:
+        - BackendApi
+      summary: Revoke an account.
+      operationId: revokeAccount
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: The updated account
+          content: {}
+        "401":
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+  /accounts:
+    get:
+      tags:
+        - BackendApi
+      summary: Get all registered accounts.
+      operationId: getAllAccounts
+      responses:
+        "200":
+          description: The updated account
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Account"
+        "401":
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+  /profiles:
+    get:
+      tags:
+        - BackendApi
+      summary: Get all Profiles
+      operationId: getAllProfiles
+      responses:
+        "200":
+          description: List of available profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Profile"
+        "401":
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+  /profiles/{profileId}:
+    get:
+      tags:
+        - BackendApi
+      summary: Find profile by Id
+      operationId: findProfileById
+      parameters:
+        - in: path
+          name: profileId
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Profile with the Id given in reques path
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "401":
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "404":
+          description: No Profile with the ID passed in request path was found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+        "500":
+          description: Unknown error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+
+components:
+  schemas:
+    #################################################
+    #               Account                         #
+    #################################################
+    AccountStatus:
+      type: string
+      enum:
+        - ACTIVE
+        - INACTIVE
+        - DELETED
+        - SUSPENDED
+    AccountRole:
+      type: string
+      enum:
+        - ADMIN
+        - HOST
+        - GUEST
+    Account:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        userId:
+          type: string
+        role:
+          $ref: "#/components/schemas/AccountRole"
+        status:
+          $ref: "#/components/schemas/AccountStatus"
+        personalInformation:
+          $ref: "#/components/schemas/PersonalInformation"
+        settings:
+          $ref: "#/components/schemas/Settings"
+        profile:
+          $ref: "#/components/schemas/Profile"
+    AccountProjection:
+      type: object
+      required:
+        - id
+        - profile
+        - createdAt
+        - updatedAt
+        - legalName
+      properties:
+        id:
+          type: integer
+          format: int64
+        legalName:
+          $ref: "#/components/schemas/LegalName"
+        profile:
+          $ref: "#/components/schemas/Profile"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    PersonalInformation:
+      type: object
+      required:
+        - id
+        - email
+        - legalName
+        - phoneNumber
+        - address
+        - governmentId
+        - emergencyContact
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+        legalName:
+          $ref: "#/components/schemas/LegalName"
+        phoneNumber:
+          $ref: "#/components/schemas/PhoneNumber"
+        address:
+          $ref: "#/components/schemas/AccountAddress"
+        governmentId:
+          $ref: "#/components/schemas/GovernmentId"
+        emergencyContact:
+          $ref: "#/components/schemas/EmergencyContact"
+    Settings:
+      type: object
+      required:
+        - global
+      properties:
+        global:
+          $ref: "#/components/schemas/GlobalSettings"
+    GlobalSettings:
+      type: object
+      required:
+        - id
+        - defaultLanguage
+        - defaultCurrency
+        - defaultTimeZone
+      properties:
+        id:
+          type: integer
+          format: int64
+        defaultLanguage:
+          type: string
+        defaultCurrency:
+          type: string
+        defaultTimeZone:
+          type: string
+    Profile:
+      type: object
+      required:
+        - id
+        - birthDate
+        - profilePictureUrl
+        - about
+        - showPreviousBookings
+        - isEmailVerified
+        - isPhoneNumberVerified
+        - isGovernmentIdVerified
+      properties:
+        id:
+          type: integer
+          format: int64
+        birthDate:
+          type: string
+          format: date
+        profilePictureUrl:
+          type: string
+        about:
+          type: string
+        showPreviousBookings:
+          type: boolean
+        isEmailVerified:
+          type: boolean
+        isPhoneNumberVerified:
+          type: boolean
+        isGovernmentIdVerified:
+          type: boolean
+    LegalName:
+      required:
+        - firstName
+        - lastName
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+    PhoneNumber:
+      required:
+        - countryCode
+        - number
+      properties:
+        countryCode:
+          type: string
+        number:
+          type: string
+    AccountAddress:
+      required:
+        - street
+        - city
+        - state
+        - zipCode
+        - country
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zipCode:
+          type: string
+        country:
+          type: string
+    GovernmentId:
+      required:
+        - idFrontSideImage
+        - idBackSideImage
+        - selfieWithIdImage
+        - createdAt
+        - status
+      properties:
+        idFrontSideImage:
+          type: string
+        idBackSideImage:
+          type: string
+        selfieWithIdImage:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        reason:
+          type: string
+        status:
+          $ref: "#/components/schemas/GovernmentIdStatusEnum"
+    GovernmentIdStatusEnum:
+      type: string
+      enum:
+        - PENDING
+        - APPROVED
+        - REJECTED
+    EmergencyContact:
+      required:
+        - name
+        - relationship
+        - preferredLanguage
+        - email
+        - phoneNumber
+      properties:
+        name:
+          type: string
+        relationship:
+          type: string
+        preferredLanguage:
+          type: string
+        type:
+          type: string
+        phoneNumber:
+          $ref: "#/components/schemas/PhoneNumber"
+        email:
+          type: string
+
+    EmailUniquenessResponse:
+      type: object
+      required:
+        - isUnique
+      properties:
+        isUnique:
+          type: boolean
+    RegisterUserRequest:
+      type: object
+      required:
+        - email
+        - lastName
+        - firstName
+        - birthDate
+        - newsletter
+      properties:
+        email:
+          type: string
+        lastName:
+          type: string
+        firstName:
+          type: string
+        birthDate:
+          type: string
+          format: date
+        newsletter:
+          type: boolean
+    AccountPatchRequest:
+      type: object
+      required: []
+      properties:
+        about:
+          $ref: "#/components/schemas/AccountPatchAbout"
+        address:
+          $ref: "#/components/schemas/AccountPatchAccountAddress"
+        birthDate:
+          $ref: "#/components/schemas/AccountPatchBirthDate"
+        email:
+          $ref: "#/components/schemas/AccountPatchEmail"
+        emergencyContact:
+          $ref: "#/components/schemas/AccountPatchEmergencyContact"
+        governmentId:
+          $ref: "#/components/schemas/AccountPatchGovernmentId"
+        legalName:
+          $ref: "#/components/schemas/AccountPatchLegalName"
+        phoneNumber:
+          $ref: "#/components/schemas/AccountPatchPhoneNumber"
+        preferredLanguage:
+          $ref: "#/components/schemas/AccountPatchPreferredLanguage"
+        preferredCurrency:
+          $ref: "#/components/schemas/AccountPatchPreferredCurrency"
+        preferredTimeZone:
+          $ref: "#/components/schemas/AccountPatchPreferredTimeZone"
+        profilePictureUrl:
+          $ref: "#/components/schemas/AccountPatchProfilePictureUrl"
+        showPastBookings:
+          $ref: "#/components/schemas/AccountPatchShowPastBookings"
+    AccountPatchEmail:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+    AccountPatchLegalName:
+      type: object
+      required:
+        - firstName
+        - lastName
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+    AccountPatchPhoneNumber:
+      type: object
+      required:
+        - countryCode
+        - number
+      properties:
+        countryCode:
+          type: string
+        number:
+          type: string
+    AccountPatchAccountAddress:
+      type: object
+      required:
+        - street
+        - city
+        - state
+        - zipCode
+        - country
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zipCode:
+          type: string
+        country:
+          type: string
+    AccountPatchGovernmentId:
+      type: object
+      required:
+        - idFrontSideImage
+        - idBackSideImage
+        - selfieWithIdImage
+      properties:
+        idFrontSideImage:
+          type: string
+        idBackSideImage:
+          type: string
+        selfieWithIdImage:
+          type: string
+    AccountPatchEmergencyContact:
+      type: object
+      required:
+        - name
+        - relationship
+        - preferredLanguage
+        - email
+        - phoneNumber
+      properties:
+        name:
+          type: string
+        relationship:
+          type: string
+        preferredLanguage:
+          type: string
+        type:
+          type: string
+        phoneNumber:
+          $ref: "#/components/schemas/AccountPatchPhoneNumber"
+        email:
+          type: string
+    AccountPatchBirthDate:
+      type: object
+      required:
+        - birthDate
+      properties:
+        birthDate:
+          type: string
+          format: date
+    AccountPatchPreferredLanguage:
+      type: object
+      required:
+        - preferredLanguage
+      properties:
+        preferredLanguage:
+          type: string
+    AccountPatchPreferredCurrency:
+      type: object
+      required:
+        - preferredCurrency
+      properties:
+        preferredCurrency:
+          type: string
+    AccountPatchPreferredTimeZone:
+      type: object
+      required:
+        - preferredTimeZone
+      properties:
+        preferredTimeZone:
+          type: string
+    AccountPatchProfilePictureUrl:
+      type: object
+      required:
+        - profilePictureUrl
+      properties:
+        profilePictureUrl:
+          type: string
+    AccountPatchAbout:
+      type: object
+      required:
+        - about
+      properties:
+        about:
+          type: string
+    AccountPatchShowPastBookings:
+      type: object
+      required:
+        - showPastBooking
+      properties:
+        showPastBooking:
+          type: boolean
+
+    IdentityVerificationResponse:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          $ref: "#/components/schemas/GovernmentIdStatusEnum"
+
+    ProblemDetail:
+      type: object
+      required:
+        - title
+        - status
+        - detail
+      properties:
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+        type:
+          type: string

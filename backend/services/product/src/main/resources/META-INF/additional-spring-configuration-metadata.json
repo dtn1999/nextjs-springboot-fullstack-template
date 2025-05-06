@@ -1,0 +1,33 @@
+{
+  "properties": [
+    {
+      "name": "auth0.domain",
+      "type": "java.lang.String",
+      "description": "Description for auth0.domain."
+    },
+    {
+      "name": "auth0.clientId",
+      "type": "java.lang.String",
+      "description": "Description for auth0.clientId."
+    },
+    {
+      "name": "auth0.clientSecret",
+      "type": "java.lang.String",
+      "description": "Description for auth0.clientSecret."
+    },
+    {
+      "name": "service.default.globalSettings.language",
+      "type": "java.lang.String",
+      "description": "Description for service.default.globalSettings.language."
+    },
+    {
+      "name": "service.default.globalSettings.timezone",
+      "type": "java.lang.String",
+      "description": "Description for service.default.globalSettings.timezone."
+    },
+    {
+      "name": "service.default.globalSettings.currency",
+      "type": "java.lang.String",
+      "description": "Description for service.default.globalSettings.currency."
+    }
+  ] }

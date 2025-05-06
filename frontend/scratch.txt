@@ -1,0 +1,1 @@
+https://dntech.eu.auth0.com/login/callback

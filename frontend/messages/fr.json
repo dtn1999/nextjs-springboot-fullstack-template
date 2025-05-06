@@ -1,0 +1,52 @@
+{
+  "Header": {
+    "cta": "Faire une demande",
+    "Navigation": {
+      "home": "Accueil",
+      "about": "À propos",
+      "properties": "Proprietes",
+      "contact": "Contact"
+    },
+    "AvatarMenu": {
+      "login": "Se connecter",
+      "register": "Créer un compte",
+      "logout": "Se déconnecter",
+      "dashboard": "Dashboard",
+      "inquiries": "Demandes",
+      "favorites": "Favoris",
+      "settings": "Paramètres du compte"
+    }
+  },
+  "HomePage": {
+    "Hero": {
+      "title": "Possède des biens immobiliers aux États-Unis",
+      "description": "Louez un logement unique pour une période déterminée, que ce soit pour une escapade rapide ou un long séjour, avec Cozy Stay - où le confort rencontre la flexibilité.",
+      "cta": "Trouver un bien"
+    },
+    "ServicesSection": {
+      "title": "Que pouvons-nous vous aider à trouver?"
+    },
+    "PropertiesSection": {
+      "title": "Propriétés en vedette",
+      "description": "Découvrez notre sélection de propriétés disponibles à la location et à la vente.",
+      "cta": "Voir toutes les propriétés"
+    },
+    "WhyUsSection": {
+      "title": "Pourquoi nous choisir?",
+      "description": "Nous sommes une équipe de professionnels passionnés par l'immobilier et dévoués à offrir le meilleur service à nos clients. Notre objectif est de vous aider à trouver le bien parfait qui répond à vos besoins et dépasse vos attentes."
+    },
+    "FeaturedLandsSection": {
+      "title": "Consultez nos terrains en vedette",
+      "description": "Explorez notre sélection de terrains disponibles à la vente."
+    },
+    "AgentsSection": {
+      "title": "Besoin d'un terrain ou d'une maison? Contactez nos agents",
+      "subtitle": "Rencontrez nos agents",
+      "cta": {
+        "title": "Devenez agent immobilier",
+        "description": "Rejoignez notre équipe d'agents immobiliers et démarrez votre carrière dans l'industrie immobilière.",
+        "cta": "Inscrivez-vous mainguest"
+      }
+    }
+  }
+}

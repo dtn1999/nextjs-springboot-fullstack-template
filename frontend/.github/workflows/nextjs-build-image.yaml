@@ -1,0 +1,29 @@
+name: Build and publish nextjs Docker image
+
+on:
+  push:
+    branches:
+      - "**"
+      - "!main"
+    tags:
+      - "*.*.*" # Example: name-1.22.33
+      - "release-*" # Example:  release-20221231
+
+  workflow_dispatch:
+    inputs:
+      git_branch:
+        description: "Branch to build."
+        required: true
+        default: "develop"
+      docker_image_tag:
+        description: "Tag for the Docker image, e.g. 1.0.0"
+        required: false
+
+jobs:
+  nextjs_docker_build:
+    uses: dtn1999/global-github_workflow-templates/.github/workflows/nextjs-build-deploy.yml@nextjs-build-deploy-v2.2.0
+    secrets: inherit
+    with:
+      node_version: "22.14.0"
+      git_branch: ${{ inputs.git_branch }}
+      docker_image_tag: ${{ inputs.docker_image_tag }}

@@ -1,29 +1,102 @@
-# Create T3 App
+# TailAdmin Pro - Next.js (v2.0)
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+[TailAdmin](https://tailadmin.com) is a modern, responsive, and customizable admin dashboard template built using
+Tailwind CSS and Next.js. It is designed to help developers build beautiful and functional dashboards quickly and
+easily.
 
-## What's next? How do I make an app with this?
+## Quick Links
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+- [✨ Visit Website](https://tailadmin.com)
+- [📄 Documentation](https://tailadmin.com/docs)
+- [⬇️ Download](https://tailadmin.com/download)
+- [🌐 Live Site](https://nextjs-demo.tailadmin.com)
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+## Installation
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+### Prerequisites
 
-## Learn More
+To get started with TailAdmin, ensure you have the following prerequisites installed and set up:
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+- Node.js 18.x or later (recommended to use Node.js 20.x or later)
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+### Getting Started
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+1. Install dependencies:
 
-## How do I deploy this?
+   ```bash
+   npm install --legacy-peer-deps
+   # or
+   yarn install
+   ```
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+   > Some included packages causes peer-deps issue with React 19 while installing.
+   >
+   > With npm the `--legacy-peer-deps` flag is a workaround for that at the moment.
+
+2. Start the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+## Changelog
+
+### v2.0.0 (February 2025)
+
+A major update focused on Next.js 15 implementation and comprehensive redesign.
+
+#### Major Improvements
+
+- Complete redesign using Next.js 15 App Router and React Server Components
+- Enhanced user interface with Next.js-optimized components
+- Improved responsiveness and accessibility
+- New features including collapsible sidebar, chat screens, and calendar
+- Redesigned authentication using Next.js App Router and server actions
+- Updated data visualization using ApexCharts for React
+
+#### Breaking Changes
+
+- Migrated from Next.js 14 to Next.js 15
+- Chart components now use ApexCharts for React
+- Authentication flow updated to use Server Actions and middleware
+
+#### Breaking Changes
+
+- Migrated from Next.js 14 to Next.js 15
+- Chart components now use ApexCharts for React
+- Authentication flow updated to use Server Actions and middleware
+
+[Read more](https://tailadmin.com/docs/update-logs/nextjs) on this release.
+
+### v1.3.4 (July 01, 2024)
+
+- Fixed JSvectormap rendering issues
+
+### v1.3.3 (June 20, 2024)
+
+- Fixed build error related to Loader component
+
+### v1.3.2 (June 19, 2024)
+
+- Added ClickOutside component for dropdown menus
+- Refactored sidebar components
+- Updated Jsvectormap package
+
+### v1.3.1 (Feb 12, 2024)
+
+- Fixed layout naming consistency
+- Updated styles
+
+### v1.3.0 (Feb 05, 2024)
+
+- Upgraded to Next.js 14
+- Added Flatpickr integration
+- Improved form elements
+- Enhanced multiselect functionality
+- Added default layout component
+
+## License
+
+Refer to our [LICENSE](https://tailadmin.com/license) page for more information.
+https://github.com/47ng/nuqs
