@@ -8,9 +8,7 @@ import com.cozy.account.core.model.payload.internal.field.RegisterUserRequest;
 import com.cozy.account.core.model.payload.internal.field.UpdateProfileRequest;
 import com.cozy.account.core.port.in.AccountManagement;
 import com.cozy.account.core.port.in.ProfileManagement;
-import com.cozy.core.event.UserRegisteredEvent;
 import com.cozy.infra.ServicesFacade;
-import com.cozy.shared.messaging.MessageSender;
 import io.vavr.control.Try;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -24,13 +22,11 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class AccountService implements AccountManagement, ProfileManagement {
     private final ServicesFacade servicesFacade;
-    private final MessageSender messageSender;
 
     @Override
     public Try<Account> register(String userId, RegisterUserRequest request) {
         return this.servicesFacade.accountService()
-                .register(userId, request)
-                .andThen(account -> this.messageSender.send(new UserRegisteredEvent(account)));
+                .register(userId, request);
     }
 
     @Override

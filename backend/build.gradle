@@ -58,7 +58,6 @@ subprojects {
         implementation "com.auth0:auth0:${ver.auth0Version}"
 
         // Data
-        implementation 'org.springframework.boot:spring-boot-starter-amqp'
         implementation "org.jobrunr:jobrunr-spring-boot-3-starter:${ver.jobRunr}"
 
         implementation "org.mnode.ical4j:ical4j:${ver.ical4jVersion}"
@@ -87,12 +86,10 @@ subprojects {
         testAnnotationProcessor 'org.projectlombok:lombok'
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation 'org.springframework.boot:spring-boot-testcontainers'
-        testImplementation "org.springframework.amqp:spring-rabbit-test"
         testImplementation "org.junit.jupiter:junit-jupiter:5.8.1"
         testImplementation "org.testcontainers:testcontainers:1.19.0"
         testImplementation "org.testcontainers:junit-jupiter:1.19.0"
         testImplementation 'org.testcontainers:postgresql'
-        testImplementation 'org.testcontainers:rabbitmq'
         testImplementation 'org.springframework.security:spring-security-test'
         testImplementation("org.springframework.boot:spring-boot-starter-webflux");
     }

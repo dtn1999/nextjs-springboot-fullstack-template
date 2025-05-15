@@ -20,18 +20,6 @@ services:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
 
-  rabbitmq:
-    image: bitnami/rabbitmq
-    container_name: rabbitmq
-    hostname: rabbitmq
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    volumes:
-      - "./configs/rabbitmq.conf:/opt/bitnami/rabbitmq/etc/rabbitmq/rabbitmq.conf"
-    labels:
-      org.springframework.boot.service-connection: "bitnami/rabbitmq"
-
 volumes:
   database:
   tempo_data:

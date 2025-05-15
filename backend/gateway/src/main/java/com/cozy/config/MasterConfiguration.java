@@ -1,13 +1,11 @@
 package com.cozy.config;
 
 import com.cozy.account.core.port.in.AccountManagement;
-import com.cozy.core.ResourceManagementEventHandler;
 import com.cozy.core.adapter.AccountService;
 import com.cozy.infra.ServicesFacade;
 import com.cozy.shared.ServiceConfigurationProperties;
 import com.cozy.shared.SystemConfigurationProperties;
 import com.cozy.shared.caching.CachingConfiguration;
-import com.cozy.shared.messaging.MessageSender;
 import liquibase.integration.spring.SpringLiquibase;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
@@ -33,7 +31,6 @@ import javax.sql.DataSource;
 @Import({
         SecurityConfiguration.class,
         CachingConfiguration.class,
-        MessagingConfiguration.class,
         SchedulingConfiguration.class
 })
 @EnableConfigurationProperties({
@@ -61,8 +58,8 @@ public class MasterConfiguration {
     }
 
     @Bean
-    public AccountService accountsService(ServicesFacade servicesFacade, MessageSender messageSender) {
-        return new AccountService(servicesFacade, messageSender);
+    public AccountService accountsService(ServicesFacade servicesFacade) {
+        return new AccountService(servicesFacade);
     }
 
     @Bean
@@ -70,11 +67,6 @@ public class MasterConfiguration {
             AccountManagement accountService
     ) {
         return new ServicesFacade(accountService);
-    }
-
-    @Bean
-    public ResourceManagementEventHandler resourceManagementEventHandler(ServicesFacade servicesFacade, MessageSender messageSender) {
-        return new ResourceManagementEventHandler(servicesFacade, messageSender);
     }
 
     @Bean
