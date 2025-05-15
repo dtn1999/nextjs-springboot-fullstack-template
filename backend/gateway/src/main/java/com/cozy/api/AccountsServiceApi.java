@@ -151,21 +151,6 @@ public class AccountsServiceApi implements AccountsApi, ProfilesApi {
     }
 
     @Override
-    public ResponseEntity<IdentityVerificationResponseDto> verifyIdentityByAccountId(Long accountId, GovernmentIdStatusEnumDto statusEnum, String rejectionReason) {
-        log.info("Verifying identity for account with id: {}", accountId);
-        return Try.success(statusEnum)
-                .filter(status -> status.equals(GovernmentIdStatusEnumDto.REJECTED) || status.equals(GovernmentIdStatusEnumDto.APPROVED), () -> new IllegalArgumentException("Status must be either APPROVED or REJECTED"))
-                .map(Mapper.INSTANCE::map)
-                .flatMap(status -> this.accountService.verifyIdentityInformation(accountId, status, rejectionReason))
-                .map(Mapper.INSTANCE::mapToIdentityVerificationResponseDto)
-                .map(ResponseEntity::ok)
-                .onFailure(e -> log.error("Failed to verify identity for account with ID {}. Reason: {}", accountId, e.getMessage()))
-                .onFailure(e -> log.debug("", e))
-                .get();
-    }
-
-
-    @Override
     public ResponseEntity<ProfileDto> findProfileById(Long profileId) {
         log.info("Fetching profile with id: {}", profileId);
         return this.accountService.findProfileById(profileId)

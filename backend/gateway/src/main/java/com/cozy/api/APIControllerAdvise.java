@@ -1,7 +1,6 @@
 package com.cozy.api;
 
 import com.cozy.account.core.exception.AccountNotFoundException;
-import com.cozy.listing.core.exception.BookedSpotException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -18,10 +17,4 @@ public class APIControllerAdvise {
         return problemDetail;
     }
 
-    @ExceptionHandler({BookedSpotException.class})
-    public ProblemDetail handle(BookedSpotException e) {
-        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, e.getMessage());
-        problemDetail.setTitle("Spot already booked");
-        return problemDetail;
-    }
 }

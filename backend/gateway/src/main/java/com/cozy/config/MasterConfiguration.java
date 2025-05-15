@@ -1,7 +1,6 @@
 package com.cozy.config;
 
 import com.cozy.account.core.port.in.AccountManagement;
-import com.cozy.core.BookingProcessingEventHandler;
 import com.cozy.core.ResourceManagementEventHandler;
 import com.cozy.core.adapter.AccountService;
 import com.cozy.infra.ServicesFacade;
@@ -71,11 +70,6 @@ public class MasterConfiguration {
             AccountManagement accountService
     ) {
         return new ServicesFacade(accountService);
-    }
-
-    @Bean
-    public BookingProcessingEventHandler bookingProcessingEventHandler(ServicesFacade servicesFacade, MessageSender messageSender) {
-        return new BookingProcessingEventHandler(servicesFacade, messageSender);
     }
 
     @Bean

@@ -67,7 +67,7 @@ task zipBuildExtracted(type: Zip) {
     destinationDirectory = file('build')
 }
 
-def openApiSpec = layout.projectDirectory.file("src/main/resources/openapi/cozy-api-gateway-spec.yaml").getAsFile().toString()
+def openApiSpec = layout.projectDirectory.file("src/main/resources/openapi/backend-api-spec.yaml").getAsFile().toString()
 
 tasks.register("generateApi", GenerateTask) {
     generatorName.set("spring")
